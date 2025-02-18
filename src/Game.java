@@ -23,7 +23,7 @@ public class Game {
         try (FileWriter fileWriter = new FileWriter(save)) {
             JSONObject characterData = new JSONObject();
             characterData.put("character_name", name);
-            characterData.put("base_seed",int() (Math.random()*100000))
+            characterData.put("base_seed",(int) (Math.random()*100000))
 
             fileWriter.write(characterData.toString(4));
             fileWriter.flush();
