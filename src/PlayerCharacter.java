@@ -10,6 +10,7 @@ class GameGui {
     JFrame gui;
     JButton newGameButton, loadGameButton, creditsButton;
     File loadedSave;
+    PlayerCharacter player;
 
     public void mainMenu() {
         gui = new JFrame("Dungeon Crawler");
@@ -17,7 +18,6 @@ class GameGui {
         gui.setSize(400, 300);
         gui.setLayout(null);
 
-        // Set background color using only Swing
         gui.getContentPane().setBackground(new javax.swing.plaf.ColorUIResource(30, 30, 30));
 
         newGameButton = new JButton("New Game");
@@ -87,6 +87,17 @@ class GameGui {
         gui.repaint();
     }
 
+    public void loadSave(File file) throws JSONException {
+        try {
+            player = new PlayerCharacter(file);
+            loadedSave = file;
+            dungeonScreen();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(gui, "Failed to load save file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     // Function to check if the save name is valid
     public boolean isValidName(String name) {
         String regex = "^(?!\\.|\\.\\.)([^<>:\"/\\\\|?*]+)$";
@@ -129,6 +140,11 @@ class GameGui {
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(gui, "Error saving file: " + e.getMessage());
+            e.printStackTrace();
+        }
+        try {
+            loadSave(save);
+        } catch (JSONException e) {
             e.printStackTrace();
         }
         displayStats();
@@ -188,13 +204,238 @@ class GameGui {
 
         int userSelection = fileChooser.showOpenDialog(gui);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
-            loadedSave = fileChooser.getSelectedFile();
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                loadSave(selectedFile);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             displayStats();
         }
+    }
+
+    public void dungeonScreen() {
+        gui.getContentPane().removeAll();
+        gui.repaint();
+    
+        long seed = 0;
+        try {
+            seed = (long)(player.getCharacterData().getDouble("Base Seed") * 100000);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Random r = new Random(seed);
+        Dungeon dungeon = new Dungeon(r.nextDouble());
+    
+        JPanel dungeonPanel = new GraphPanel(dungeon);
+        dungeonPanel.setBounds(0, 0, 700, 500);
+    
+        gui.setSize(720, 550);
+        gui.setLayout(null);
+        gui.add(dungeonPanel);
+        gui.revalidate();
+        gui.repaint();
     }
 
 
     public static void main(String[] args) {
         new GameGui().mainMenu();
+    }
+}
+
+
+class Room {
+    private int id;
+    private java.util.List<Room> neighbors;
+    private int x, y;
+
+    public Room(int id) {
+        this.id = id;
+        this.neighbors = new ArrayList<>();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public java.util.List<Room> getNeighbors() {
+        return neighbors;
+    }
+
+    public void addNeighbor(Room room) {
+        if (!neighbors.contains(room)) {
+            neighbors.add(room);
+        }
+    }
+
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public Point getPosition() {
+        return new Point(x, y);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Node " + id + " -> ");
+        for (Room neighbor : neighbors) {
+            sb.append(neighbor.getId()).append(" ");
+        }
+        return sb.toString();
+    }
+}
+
+class Dungeon {
+    private java.util.List<Room> rooms;
+    private Random random;
+    private double size;
+    private String theme;
+
+    public Dungeon(double seed) {
+        rooms = new ArrayList<>();
+        random = new Random((long)seed);
+        size = (random.nextDouble()*1.25) + 0.75;
+        int noRooms = (int)(size*8);
+        int noDoors = (int)(((noRooms -1)*noRooms/2)*(random.nextDouble()*0.05) + 0.1);
+        String[] dungeonThemes = {
+            "Swampy",
+            "Sewer",
+            "Magical",
+            "Volcanic",
+            "Frozen Ice Cavern",
+            "Ancient Ruins",
+            "Haunted Crypt",
+            "Dark Forest",
+            "Desert Tomb",
+            "Clockwork Fortress",
+            "Corrupted Temple",
+            "Crystal Cavern",
+            "Underwater Shrine",
+            "Abandoned Mine",
+            "Blood Catacombs",
+            "Shadow Realm",
+            "Celestial Tower",
+            "Fungal Hollow",
+            "Cursed Library",
+            "Beast Lair"
+        };
+        
+        this.theme = dungeonThemes[random.nextInt(20)];
+
+        // Create nodes
+        for (int i = 0; i < noRooms; i++) {
+            rooms.add(new Room(i));
+        }
+
+        // Create edges randomly
+        int edgesCreated = 0;
+        while (edgesCreated < noDoors) {
+            int fromIndex = random.nextInt(noRooms);
+            int toIndex = random.nextInt(noRooms);
+
+            if (fromIndex != toIndex) {
+                Room fromRoom = rooms.get(fromIndex);
+                Room toRoom = rooms.get(toIndex);
+
+                if (!fromRoom.getNeighbors().contains(toRoom)) {
+                    fromRoom.addNeighbor(toRoom);
+                    toRoom.addNeighbor(fromRoom);
+                    edgesCreated++;
+                }
+            }
+        }
+
+        // Assign random positions to nodes
+        for (Room node : rooms) {
+            int x = 50 + random.nextInt(600);
+            int y = 50 + random.nextInt(400);
+            node.setPosition(x, y);
+        }
+    }
+
+    public java.util.List<Room> getRoom() {
+        return rooms;
+    }
+
+    public void printGraph() {
+        for (Room room : rooms) {
+            System.out.println(room);
+        }
+    }
+}
+
+class GraphPanel extends JPanel {
+    private Dungeon dungeon;
+
+    public GraphPanel(Dungeon dungeon) {
+        this.dungeon = dungeon;
+        setPreferredSize(new Dimension(700, 500));
+        setBackground(Color.WHITE);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        drawGraph(g);
+    }
+
+    private void drawGraph(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setStroke(new BasicStroke(2));
+
+        // Draw edges
+        g2d.setColor(Color.GRAY);
+        for (Room room : dungeon.getRoom()) {
+            Point p1 = room.getPosition();
+            for (Room neighbor : room.getNeighbors()) {
+                Point p2 = neighbor.getPosition();
+                g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+            }
+        }
+
+        // Draw nodes
+        for (Room node : dungeon.getRoom()) {
+            Point p = node.getPosition();
+            g2d.setColor(Color.CYAN);
+            g2d.fillOval(p.x - 15, p.y - 15, 30, 30);
+            g2d.setColor(Color.BLACK);
+            g2d.drawOval(p.x - 15, p.y - 15, 30, 30);
+            g2d.drawString("N" + node.getId(), p.x - 10, p.y + 5);
+        }
+    }
+}
+
+public class PlayerCharacter {
+    private JSONObject characterData;
+
+    public PlayerCharacter(File jsonFile) throws IOException {
+        try {
+            loadCharacterData(jsonFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    private void loadCharacterData(File jsonFile) throws IOException, JSONException {
+        BufferedReader reader = new BufferedReader(new FileReader(jsonFile));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        reader.close();
+        characterData = new JSONObject(sb.toString());
+    }
+    public JSONObject getCharacterData() {
+        return characterData;
+    }
+    public String getName() throws JSONException {
+        return characterData.getString("Name");
+    }
+    public int getLevel() throws JSONException {
+        return characterData.getInt("Level");
     }
 }
