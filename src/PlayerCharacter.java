@@ -5,7 +5,11 @@ import org.json.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+<<<<<<< Updated upstream
 import java.net.*; // Import for socket programming
+=======
+import java.net.*;
+>>>>>>> Stashed changes
 
 class GameGui {
     JFrame gui;
@@ -90,7 +94,10 @@ class GameGui {
         gui.setVisible(true);
     }
 
+<<<<<<< Updated upstream
     // Function to connect to another player
+=======
+>>>>>>> Stashed changes
     private void connectToPlayer(String ipAddress) {
         try {
             Socket socket = new Socket(ipAddress, 12345); // Example port number
@@ -104,9 +111,11 @@ class GameGui {
 
     // Function to show new game menu
     public void newGameMenu() {
-        gui.getContentPane().removeAll(); // Clears the window
+        gui.getContentPane().removeAll();
         gui.repaint();
+        gui.setLayout(new BorderLayout());
 
+<<<<<<< Updated upstream
         // Set layout for new game menu
         gui.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -117,8 +126,28 @@ class GameGui {
         gbc.gridy = 0;
         gbc.insets = new Insets(10, 10, 10, 10);
         gui.add(nameLabel, gbc);
+=======
+        // Main form panel
+        JPanel formPanel = new JPanel();
+        formPanel.setBorder(BorderFactory.createEmptyBorder(100, 0, 0, 0));
+        formPanel.setOpaque(false);
+>>>>>>> Stashed changes
 
+        // Use same sizes as mainMenu
+        Font labelFont = new Font("Arial", Font.PLAIN, 8);
+        Font fieldFont = new Font("Arial", Font.PLAIN, 8);
+        Dimension fieldSize = new Dimension(120, 24);
+        Dimension buttonSize = new Dimension(120, 24);
+
+        // Set text color to white
+        Color textColor = Color.WHITE;
+
+        // Name field
+        JLabel nameLabel = new JLabel("Character Name:");
+        nameLabel.setFont(labelFont);
+        nameLabel.setForeground(textColor);
         JTextField nameField = new JTextField();
+<<<<<<< Updated upstream
         nameField.setFont(new Font("Arial", Font.PLAIN, 24));
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -152,10 +181,137 @@ class GameGui {
             }
         });
 
+=======
+        nameField.setFont(fieldFont);
+        nameField.setPreferredSize(fieldSize);
+        nameField.setForeground(textColor);
+        nameField.setBackground(new Color(30, 30, 30));
+
+        // Class selection
+        JLabel classLabel = new JLabel("Select Class:");
+        classLabel.setFont(labelFont);
+        classLabel.setForeground(textColor);
+        String[] classes = {"Warrior", "Mage", "Rogue", "Cleric"};
+        JComboBox<String> classDropdown = new JComboBox<>(classes);
+        classDropdown.setFont(fieldFont);
+        classDropdown.setPreferredSize(fieldSize);
+        classDropdown.setForeground(textColor);
+        classDropdown.setBackground(new Color(30, 30, 30));
+
+        // Create button
+        JButton createButton = new JButton("Create Character");
+        createButton.setFont(fieldFont);
+        createButton.setPreferredSize(buttonSize);
+        createButton.setForeground(textColor);
+        createButton.setBackground(new Color(30, 30, 30));
+
+        // Return to main menu button - now resets panel instead of creating new window
+        JButton returnButton = new JButton("Return to Main Menu");
+        returnButton.setFont(fieldFont);
+        returnButton.setPreferredSize(buttonSize);
+        returnButton.setForeground(textColor);
+        returnButton.setBackground(new Color(30, 30, 30));
+        returnButton.addActionListener(e -> {
+            gui.getContentPane().removeAll();
+            mainMenu();
+        });
+        createButton.addActionListener(e -> {
+            String name = nameField.getText();
+            String selectedClass = (String) classDropdown.getSelectedItem();
+            if (isValidName(name)) {
+                createNewSave(name, selectedClass);
+            } else {
+                JOptionPane.showMessageDialog(gui, "Invalid name! Use only valid characters.");
+            }
+        });
+
+        // Add components
+        formPanel.add(nameLabel);
+        formPanel.add(nameField);
+        formPanel.add(classLabel);
+        formPanel.add(classDropdown);
+        formPanel.add(createButton);
+        formPanel.add(returnButton);
+
+        gui.add(formPanel, BorderLayout.CENTER);
+>>>>>>> Stashed changes
         gui.revalidate();
         gui.repaint();
     }
 
+<<<<<<< Updated upstream
+=======
+    public void createNewSave(String name, String characterClass) {
+        File save = new File(name + ".json");
+        try {
+            JSONObject characterData = new JSONObject();
+            characterData.put("Name", name);
+            characterData.put("Class", characterClass);
+            
+            // Set stats based on class
+            switch(characterClass) {
+                case "Warrior":
+                    characterData.put("Strength", 15);
+                    characterData.put("Dexterity", 8);
+                    characterData.put("Toughness", 12);
+                    characterData.put("Magic", 5);
+                    characterData.put("Willpower", 8);
+                    break;
+                case "Mage":
+                    characterData.put("Strength", 5);
+                    characterData.put("Dexterity", 8);
+                    characterData.put("Toughness", 6);
+                    characterData.put("Magic", 15);
+                    characterData.put("Willpower", 12);
+                    break;
+                case "Rogue":
+                    characterData.put("Strength", 8);
+                    characterData.put("Dexterity", 15);
+                    characterData.put("Toughness", 8);
+                    characterData.put("Magic", 5);
+                    characterData.put("Willpower", 8);
+                    break;
+                case "Cleric":
+                    characterData.put("Strength", 8);
+                    characterData.put("Dexterity", 8);
+                    characterData.put("Toughness", 10);
+                    characterData.put("Magic", 12);
+                    characterData.put("Willpower", 15);
+                    break;
+            }
+            
+            // Common stats
+            characterData.put("Level", 1);
+            characterData.put("Exp", 0);
+            characterData.put("HP", 100);
+            characterData.put("Stamina", 100);
+            characterData.put("Gold", 50);
+            characterData.put("Base Seed", Math.random());
+            characterData.put("Dungeons Completed", 0);
+
+            try (FileWriter fileWriter = new FileWriter(save)) {
+                fileWriter.write(characterData.toString(4));
+                loadedSave = save;
+                JOptionPane.showMessageDialog(gui, "Character created!");
+                displayStats();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(gui, "Error creating character: " + e.getMessage());
+        }
+    }
+
+    public void loadSave(File file) throws JSONException {
+        try {
+            player = new PlayerCharacter(file);
+            loadedSave = file;
+            dungeonScreen();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(gui, "Failed to load save file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+>>>>>>> Stashed changes
     // Function to check if the save name is valid
     public boolean isValidName(String name) {
         String regex = "^(?!\\.|\\.\\.)([^<>:\"/\\\\|?*]+)$";
@@ -242,7 +398,17 @@ class GameGui {
             statsText += "</html>";
 
             JLabel statsLabel = new JLabel(statsText);
-            statsFrame.add(statsLabel);
+        statsFrame.add(statsLabel);
+        
+        // Add return to main menu button
+        JButton returnButton = new JButton("Return to Main Menu");
+        returnButton.setFont(new Font("Arial", Font.PLAIN, 8));
+        returnButton.setPreferredSize(new Dimension(48, 10));
+        returnButton.addActionListener(e -> {
+            statsFrame.dispose();
+            mainMenu();
+        });
+        statsFrame.add(returnButton);
 
             // Show the stats window
             statsFrame.setVisible(true);
@@ -264,7 +430,242 @@ class GameGui {
         }
     }
 
+<<<<<<< Updated upstream
+=======
+    public void dungeonScreen() {
+        gui.getContentPane().removeAll();
+        gui.repaint();
+    
+        long seed = 0;
+        try {
+            seed = (long)(player.getCharacterData().getDouble("Base Seed") * 100000);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Random r = new Random(seed);
+        Dungeon dungeon = new Dungeon(r.nextDouble());
+    
+        JPanel dungeonPanel = new GraphPanel(dungeon);
+        dungeonPanel.setBounds(0, 0, 300, 200);  // Smaller dungeon grid
+    
+        gui.setSize(320, 250);  // Smaller window
+        gui.setLayout(new BorderLayout());
+        gui.add(dungeonPanel, BorderLayout.CENTER);
+        
+        // Add return to main menu button
+        JButton returnButton = new JButton("Return to Main Menu");
+        returnButton.setFont(new Font("Arial", Font.PLAIN, 8));
+        returnButton.setPreferredSize(new Dimension(48, 10));
+        returnButton.addActionListener(e -> mainMenu());
+        gui.add(returnButton, BorderLayout.SOUTH);
+        gui.revalidate();
+        gui.repaint();
+    }
+
+
+>>>>>>> Stashed changes
     public static void main(String[] args) {
         new GameGui().mainMenu();
     }
 }
+<<<<<<< Updated upstream
+=======
+
+
+class Room {
+    private int id;
+    private java.util.List<Room> neighbors;
+    private int x, y;
+
+    public Room(int id) {
+        this.id = id;
+        this.neighbors = new ArrayList<>();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public java.util.List<Room> getNeighbors() {
+        return neighbors;
+    }
+
+    public void addNeighbor(Room room) {
+        if (!neighbors.contains(room)) {
+            neighbors.add(room);
+        }
+    }
+
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public Point getPosition() {
+        return new Point(x, y);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Node " + id + " -> ");
+        for (Room neighbor : neighbors) {
+            sb.append(neighbor.getId()).append(" ");
+        }
+        return sb.toString();
+    }
+}
+
+class Dungeon {
+    private java.util.List<Room> rooms;
+    private Random random;
+    private double size;
+    private String theme;
+
+    public Dungeon(double seed) {
+        rooms = new ArrayList<>();
+        random = new Random((long)seed);
+        size = (random.nextDouble()*1.25) + 0.75;
+        int noRooms = (int)(size*8);
+        int noDoors = (int)(((noRooms -1)*noRooms/2)*(random.nextDouble()*0.05) + 0.1);
+        String[] dungeonThemes = {
+            "Swampy",
+            "Sewer",
+            "Magical",
+            "Volcanic",
+            "Frozen Ice Cavern",
+            "Ancient Ruins",
+            "Haunted Crypt",
+            "Dark Forest",
+            "Desert Tomb",
+            "Clockwork Fortress",
+            "Corrupted Temple",
+            "Crystal Cavern",
+            "Underwater Shrine",
+            "Abandoned Mine",
+            "Blood Catacombs",
+            "Shadow Realm",
+            "Celestial Tower",
+            "Fungal Hollow",
+            "Cursed Library",
+            "Beast Lair"
+        };
+        
+        this.theme = dungeonThemes[random.nextInt(20)];
+
+        // Create nodes
+        for (int i = 0; i < noRooms; i++) {
+            rooms.add(new Room(i));
+        }
+
+        // Create edges randomly
+        int edgesCreated = 0;
+        while (edgesCreated < noDoors) {
+            int fromIndex = random.nextInt(noRooms);
+            int toIndex = random.nextInt(noRooms);
+
+            if (fromIndex != toIndex) {
+                Room fromRoom = rooms.get(fromIndex);
+                Room toRoom = rooms.get(toIndex);
+
+                if (!fromRoom.getNeighbors().contains(toRoom)) {
+                    fromRoom.addNeighbor(toRoom);
+                    toRoom.addNeighbor(fromRoom);
+                    edgesCreated++;
+                }
+            }
+        }
+
+        // Assign random positions to nodes
+        for (Room node : rooms) {
+            int x = 50 + random.nextInt(600);
+            int y = 50 + random.nextInt(400);
+            node.setPosition(x, y);
+        }
+    }
+
+    public java.util.List<Room> getRoom() {
+        return rooms;
+    }
+
+    public void printGraph() {
+        for (Room room : rooms) {
+            System.out.println(room);
+        }
+    }
+}
+
+class GraphPanel extends JPanel {
+    private Dungeon dungeon;
+
+    public GraphPanel(Dungeon dungeon) {
+        this.dungeon = dungeon;
+        setPreferredSize(new Dimension(700, 500));
+        setBackground(Color.WHITE);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        drawGraph(g);
+    }
+
+    private void drawGraph(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setStroke(new BasicStroke(2));
+
+        // Draw edges
+        g2d.setColor(Color.GRAY);
+        for (Room room : dungeon.getRoom()) {
+            Point p1 = room.getPosition();
+            for (Room neighbor : room.getNeighbors()) {
+                Point p2 = neighbor.getPosition();
+                g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+            }
+        }
+
+        // Draw nodes
+        for (Room node : dungeon.getRoom()) {
+            Point p = node.getPosition();
+            g2d.setColor(Color.CYAN);
+            g2d.fillOval(p.x - 15, p.y - 15, 30, 30);
+            g2d.setColor(Color.BLACK);
+            g2d.drawOval(p.x - 15, p.y - 15, 30, 30);
+            g2d.drawString("N" + node.getId(), p.x - 10, p.y + 5);
+        }
+    }
+}
+
+public class PlayerCharacter {
+    private JSONObject characterData;
+
+    public PlayerCharacter(File jsonFile) throws IOException {
+        try {
+            loadCharacterData(jsonFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    private void loadCharacterData(File jsonFile) throws IOException, JSONException {
+        BufferedReader reader = new BufferedReader(new FileReader(jsonFile));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        reader.close();
+        characterData = new JSONObject(sb.toString());
+    }
+    public JSONObject getCharacterData() {
+        return characterData;
+    }
+    public String getName() throws JSONException {
+        return characterData.getString("Name");
+    }
+    public int getLevel() throws JSONException {
+        return characterData.getInt("Level");
+    }
+}
+
+>>>>>>> Stashed changes
