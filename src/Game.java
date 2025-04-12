@@ -5,29 +5,61 @@ import org.json.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.*; // Import for socket programming
 
 class GameGui {
     JFrame gui;
-    JButton newGameButton, loadGameButton, creditsButton;
+    JButton newGameButton, loadGameButton, creditsButton, playWithFriendsButton, exitButton;
     File loadedSave;
 
     public void mainMenu() {
         gui = new JFrame("Dungeon Crawler");
         gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        gui.setSize(400, 300);
-        gui.setLayout(null);
-
+        gui.setSize(1680, 1050);
+        gui.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        
         // Set background color using only Swing
         gui.getContentPane().setBackground(new javax.swing.plaf.ColorUIResource(30, 30, 30));
 
+        // Title Label
+        JLabel titleLabel = new JLabel("DungeonCrawler");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 36));
+        titleLabel.setForeground(Color.WHITE);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(20, 0, 20, 0); // Top padding
+        gui.add(titleLabel, gbc);
+
+        // New Game Button
         newGameButton = new JButton("New Game");
-        newGameButton.setBounds(125, 50, 150, 40);
+        newGameButton.setPreferredSize(new Dimension(200, 50));
+        gbc.gridy = 1;
+        gui.add(newGameButton, gbc);
 
+        // Load Game Button
         loadGameButton = new JButton("Load Game");
-        loadGameButton.setBounds(125, 110, 150, 40);
+        loadGameButton.setPreferredSize(new Dimension(200, 50));
+        gbc.gridy = 2;
+        gui.add(loadGameButton, gbc);
 
+        // Play with Friends Button
+        playWithFriendsButton = new JButton("Play with Friends");
+        playWithFriendsButton.setPreferredSize(new Dimension(200, 50));
+        gbc.gridy = 3;
+        gui.add(playWithFriendsButton, gbc);
+
+        // Credits Button
         creditsButton = new JButton("Credits");
-        creditsButton.setBounds(125, 170, 150, 40);
+        creditsButton.setPreferredSize(new Dimension(200, 50));
+        gbc.gridy = 4;
+        gui.add(creditsButton, gbc);
+
+        // Exit Button
+        exitButton = new JButton("Exit");
+        exitButton.setPreferredSize(new Dimension(200, 50));
+        gbc.gridy = 5;
+        gui.add(exitButton, gbc);
 
         // Button Actions
         newGameButton.addActionListener(new ActionListener() {
@@ -38,18 +70,36 @@ class GameGui {
 
         loadGameButton.addActionListener(e -> loadGameMenu());
 
+        playWithFriendsButton.addActionListener(e -> {
+            String ipAddress = JOptionPane.showInputDialog(gui, "Enter IP Address to connect:");
+            if (ipAddress != null && !ipAddress.isEmpty()) {
+                connectToPlayer(ipAddress);
+            }
+        });
+
         creditsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(gui, "Game by Harshil Shah, Harshil Amin & Aniket Gaikwad");
             }
         });
 
-        // Add buttons to frame
-        gui.add(newGameButton);
-        gui.add(loadGameButton);
-        gui.add(creditsButton);
+        exitButton.addActionListener(e -> {
+            System.exit(0);
+        });
 
         gui.setVisible(true);
+    }
+
+    // Function to connect to another player
+    private void connectToPlayer(String ipAddress) {
+        try {
+            Socket socket = new Socket(ipAddress, 12345); // Example port number
+            JOptionPane.showMessageDialog(gui, "Connected to " + ipAddress);
+            // Handle further communication with the player here
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(gui, "Connection failed: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // Function to show new game menu
@@ -57,31 +107,50 @@ class GameGui {
         gui.getContentPane().removeAll(); // Clears the window
         gui.repaint();
 
+        // Set layout for new game menu
+        gui.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
         JLabel nameLabel = new JLabel("Enter Character Name:");
-        nameLabel.setBounds(50, 50, 200, 30);
+        nameLabel.setFont(new Font("Arial", Font.PLAIN, 24));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gui.add(nameLabel, gbc);
 
         JTextField nameField = new JTextField();
-        nameField.setBounds(50, 90, 200, 30);
+        nameField.setFont(new Font("Arial", Font.PLAIN, 24));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gui.add(nameField, gbc);
+
+        // Dropdown for RPG Classes
+        String[] classes = {"Warrior", "Mage", "Rogue"};
+        JComboBox<String> classDropdown = new JComboBox<>(classes);
+        classDropdown.setFont(new Font("Arial", Font.PLAIN, 24));
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gui.add(classDropdown, gbc);
 
         JButton saveButton = new JButton("Create Save");
-        saveButton.setBounds(50, 140, 150, 40);
+        saveButton.setFont(new Font("Arial", Font.PLAIN, 24));
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gui.add(saveButton, gbc);
 
         // Save button action
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String name = nameField.getText();
+                String selectedClass = (String) classDropdown.getSelectedItem();
                 if (isValidName(name)) {
-                    createNewSave(name);
+                    createNewSave(name, selectedClass);
                 } else {
                     JOptionPane.showMessageDialog(gui, "Invalid name! Use only valid characters.");
                 }
             }
         });
-
-        // Add components
-        gui.add(nameLabel);
-        gui.add(nameField);
-        gui.add(saveButton);
 
         gui.revalidate();
         gui.repaint();
@@ -93,7 +162,7 @@ class GameGui {
         return Pattern.matches(regex, name);
     }
 
-    public void createNewSave(String name) {
+    public void createNewSave(String name, String selectedClass) {
         File save = new File(name + ".json");
         try {
             if (save.createNewFile()) {
@@ -106,18 +175,19 @@ class GameGui {
                 JSONObject characterData = new JSONObject();
                 try {
                     characterData.put("Name", name);
+                    characterData.put("Class", selectedClass);
                     characterData.put("Level", 1);
                     characterData.put("Exp", 0);
-                    characterData.put("HP", 100);
+                    characterData.put("HP", selectedClass.equals("Warrior") ? 150 : selectedClass.equals("Mage") ? 100 : 120);
                     characterData.put("Stamina", 100);
                     characterData.put("Gold", 50);
-                    characterData.put("Strength",10);
-                    characterData.put("Dexterity",10);
-                    characterData.put("Toughness",10);
-                    characterData.put("Magic",10);
-                    characterData.put("Willpower",10);
-                    characterData.put("Base Seed",Math.random());
-                    characterData.put("Dungeons Completed",0);
+                    characterData.put("Strength", selectedClass.equals("Warrior") ? 15 : 10);
+                    characterData.put("Dexterity", selectedClass.equals("Rogue") ? 15 : 10);
+                    characterData.put("Toughness", 10);
+                    characterData.put("Magic", selectedClass.equals("Mage") ? 15 : 10);
+                    characterData.put("Willpower", 10);
+                    characterData.put("Base Seed", Math.random());
+                    characterData.put("Dungeons Completed", 0);
                     fileWriter.write(characterData.toString(4));
                     fileWriter.flush();
                     JOptionPane.showMessageDialog(gui, "Character name saved.");
@@ -157,6 +227,7 @@ class GameGui {
             // Display stats in a label
             String statsText = "<html>";
             statsText += "<b>Name:</b> " + characterData.getString("Name") + "<br>";
+            statsText += "<b>Class:</b> " + characterData.getString("Class") + "<br>";
             statsText += "<b>Level:</b> " + characterData.getInt("Level") + "<br>";
             statsText += "<b>Exp:</b> " + characterData.getInt("Exp") + "<br>";
             statsText += "<b>HP:</b> " + characterData.getInt("HP") + "<br>";
@@ -192,7 +263,6 @@ class GameGui {
             displayStats();
         }
     }
-
 
     public static void main(String[] args) {
         new GameGui().mainMenu();
