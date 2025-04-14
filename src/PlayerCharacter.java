@@ -34,12 +34,8 @@ class GameGui {
     private boolean inCombat = false;  // Track combat state
     private JProgressBar monsterHPBar;
     private JProgressBar monsterStaminaBar;
-    private Socket multiplayerSocket;
-    private DataInputStream multiplayerInput;
-    private DataOutputStream multiplayerOutput;
     private int opponentHp;
     private int opponentStamina;
-    private boolean isPlayerTurn;
     private int currentHp;
     private int currentStamina;
     private JPanel statsPanel;
@@ -476,7 +472,7 @@ class GameGui {
         combatPanel = new JPanel();
         combatPanel.setLayout(new BoxLayout(combatPanel, BoxLayout.Y_AXIS));
         combatPanel.setBackground(new Color(30, 30, 30));
-
+    
         try {
             int playerLevel = player.getLevel();
             String difficulty = monster.getDifficulty();
@@ -494,17 +490,17 @@ class GameGui {
             monsterCurrentHP = monsterMaxHP;
             monsterCurrentStamina = monsterMaxStamina;
             monsterDamageReduction = Math.max(Math.max(monsterStr, monsterDex), Math.max(monsterMag, monsterFor));
-
+    
             // Load skill data
             monsterSkillsData = new JSONObject(new String(Files.readAllBytes(Paths.get("lib/MonsterSkills.json"))));
             playerSkillsData = new JSONObject(new String(Files.readAllBytes(Paths.get("lib/Skills.json"))));
-
+    
             // Create UI components
             JLabel monsterLabel = new JLabel("Fighting: " + monster.getName() + " (" + difficulty + ")");
             monsterLabel.setForeground(Color.WHITE);
             monsterLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             combatPanel.add(monsterLabel);
-
+    
             // Add monster stats display
             JPanel statsPanel = new JPanel();
             statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
@@ -541,7 +537,7 @@ class GameGui {
             monsterHPBar.setStringPainted(true);
             monsterHPBar.setAlignmentX(Component.CENTER_ALIGNMENT);
             combatPanel.add(monsterHPBar);
-
+    
             monsterStaminaBar = new JProgressBar(0, monsterMaxStamina);
             monsterStaminaBar.setValue(monsterCurrentStamina);
             monsterStaminaBar.setString("Monster Stamina: " + monsterCurrentStamina + "/" + monsterMaxStamina);
@@ -632,14 +628,14 @@ class GameGui {
             skillsLabel.setForeground(Color.WHITE);
             skillsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             skillsPanel.add(skillsLabel);
-            
+    
             try {
-                JSONArray playerSkills = player.getSkills();
-                for (int i = 0; i < playerSkills.length(); i++) {
-                    String skillId = playerSkills.getString(i);
-                    JSONObject skill = findSkill(playerSkillsData, skillId);
+            JSONArray playerSkills = player.getSkills();
+            for (int i = 0; i < playerSkills.length(); i++) {
+                String skillId = playerSkills.getString(i);
+                JSONObject skill = findSkill(playerSkillsData, skillId);
                     if (skill != null) {
-                        JButton skillButton = createSkillButton(skill, monsterHPBar, monsterStaminaBar);
+                    JButton skillButton = createSkillButton(skill, monsterHPBar, monsterStaminaBar);
                         skillButton.setAlignmentX(Component.CENTER_ALIGNMENT);
                         skillsPanel.add(skillButton);
                     }
@@ -694,7 +690,7 @@ class GameGui {
             currentRoomPanel.add(combatPanel);
             currentRoomPanel.revalidate();
             currentRoomPanel.repaint();
-
+    
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(gui, "Error initializing combat: " + e.getMessage());
@@ -799,14 +795,14 @@ class GameGui {
         // Refresh stats panel
         refreshStatsPanel();
     }
-
+    
     private JButton createSkillButton(JSONObject skill, JProgressBar monsterHPBar, JProgressBar monsterStaminaBar) throws JSONException {
         JButton button = new JButton(skill.getString("name"));
         button.setForeground(Color.WHITE);
         button.setBackground(new Color(30, 30, 30));
         button.setMaximumSize(new Dimension(200, 30));
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+    
         button.addActionListener(e -> {
             try {
                 int staminaCost = skill.getInt("staminaCost");
@@ -843,17 +839,17 @@ class GameGui {
                     // Add combat log entry
                     combatLog.append("You used " + skill.getString("name") + " and dealt " + finalDamage + " damage!\n");
                     combatLog.setCaretPosition(combatLog.getDocument().getLength());
-
+    
                     if (monsterCurrentHP <= 0) {
                         combatLog.append("You defeated the monster!\n");
                         JOptionPane.showMessageDialog(gui, "You defeated the monster!");
                         endCombat(true);
                         return;
                     }
-
+    
                     // Monster turn
                     monsterAttack(monsterHPBar, monsterStaminaBar);
-
+    
                     // Update player stats display
                     refreshStatsPanel();
 
@@ -868,7 +864,7 @@ class GameGui {
         });
         return button;
     }
-
+    
     private void monsterAttack(JProgressBar monsterHPBar, JProgressBar monsterStaminaBar) {
         try {
             // Check for frozen condition
@@ -971,13 +967,13 @@ class GameGui {
                 combatLog.append("The monster recovered some stamina!\n");
                 combatLog.setCaretPosition(combatLog.getDocument().getLength());
             }
-
+    
             monsterStaminaBar.setValue(monsterCurrentStamina);
             monsterStaminaBar.setString("Monster Stamina: " + monsterCurrentStamina + "/" + monsterMaxStamina);
             
             // Update player stats display
             refreshStatsPanel();
-
+    
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
@@ -1608,16 +1604,16 @@ class GameGui {
             statsPanel.add(createStatLine("Toughness: " + player.getCharacterData().getInt("Toughness")));
             statsPanel.add(createStatLine("Magic: " + player.getCharacterData().getInt("Magic")));
             statsPanel.add(createStatLine("Dungeons Completed: " + player.getCharacterData().getInt("Dungeons Completed")));
-            
+
             // Add consumables section
             statsPanel.add(Box.createVerticalStrut(20));
             JLabel consumablesLabel = new JLabel("Use Items:");
             consumablesLabel.setForeground(Color.WHITE);
             statsPanel.add(consumablesLabel);
-            
+
             if (player.getCharacterData().has("Inventory")) {
                 JSONArray inventory = player.getCharacterData().getJSONArray("Inventory");
-                
+
                 // Count health potions and stamina tonics
                 int healthPots = 0;
                 int staminaPots = 0;
@@ -1626,7 +1622,7 @@ class GameGui {
                     if ("HLT".equals(itemId)) healthPots++;
                     if ("STM".equals(itemId)) staminaPots++;
                 }
-                
+
                 // Add health potion button if available
                 if (healthPots > 0) {
                     JButton healthButton = new JButton("Health Potion (" + healthPots + ")");
@@ -1639,13 +1635,13 @@ class GameGui {
                                     break;
                                 }
                             }
-                            
+
                             // Restore 20% HP
                             int maxHP = player.getCharacterData().getInt("MaxHP");
                             int currentHP = player.getCharacterData().getInt("CurrentHP");
                             int healAmount = (int)(maxHP * 0.2);
                             player.getCharacterData().put("CurrentHP", Math.min(maxHP, currentHP + healAmount));
-                            
+
                             // Refresh stats panel
                             refreshStatsPanel();
                             JOptionPane.showMessageDialog(gui, "Restored " + healAmount + " HP!");
@@ -1655,7 +1651,7 @@ class GameGui {
                     });
                     statsPanel.add(healthButton);
                 }
-                
+
                 // Add stamina tonic button if available
                 if (staminaPots > 0) {
                     JButton staminaTonicButton = new JButton("Use Stamina Tonic");
@@ -1795,134 +1791,6 @@ class GameGui {
         }
     }
 
-    private void initializeMultiplayerCombat(Socket socket) {
-        try {
-            multiplayerSocket = socket;
-            multiplayerInput = new DataInputStream(socket.getInputStream());
-            multiplayerOutput = new DataOutputStream(socket.getOutputStream());
-            
-            // Send initial stats to opponent
-            try {
-                multiplayerOutput.writeInt(player.getCurrentHp());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            try {
-                multiplayerOutput.writeInt(player.getCurrentStamina());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            multiplayerOutput.flush();
-            
-            // Receive opponent's initial stats
-            opponentHp = multiplayerInput.readInt();
-            opponentStamina = multiplayerInput.readInt();
-            
-            // Randomly decide who goes first
-            isPlayerTurn = Math.random() < 0.5;
-            if (isPlayerTurn) {
-                combatLog.append("You go first!\n");
-            } else {
-                combatLog.append("Opponent goes first!\n");
-                waitForOpponentMove();
-            }
-            
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(gui, "Error initializing multiplayer combat");
-        }
-    }
-
-    private void waitForOpponentMove() {
-        new Thread(() -> {
-            try {
-                int skillId = multiplayerInput.readInt();
-                int damage = multiplayerInput.readInt();
-                int staminaCost = multiplayerInput.readInt();
-                
-                SwingUtilities.invokeLater(() -> {
-                    try {
-                        JSONObject skill = findSkill(playerSkillsData, String.valueOf(skillId));
-                        if (skill != null) {
-                            combatLog.append("Opponent used " + skill.getString("name") + "!\n");
-                            combatLog.append("You took " + damage + " damage!\n");
-                            
-                            try {
-                                int currentHp = player.getCurrentHp();
-                                player.setCurrentHp(currentHp - damage);
-                                updateCombatStats();
-                                
-                                if (currentHp - damage <= 0) {
-                                    endMultiplayerCombat(false);
-                                } else {
-                                    isPlayerTurn = true;
-                                    combatLog.append("Your turn!\n");
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                combatLog.append("Error updating health!\n");
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-                SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(gui, "Connection lost");
-                    endMultiplayerCombat(false);
-                });
-            }
-        }).start();
-    }
-
-    private void sendMoveToOpponent(int skillId, int damage, int staminaCost) {
-        try {
-            multiplayerOutput.writeInt(skillId);
-            multiplayerOutput.writeInt(damage);
-            multiplayerOutput.writeInt(staminaCost);
-            multiplayerOutput.flush();
-            
-            opponentHp -= damage;
-            opponentStamina -= staminaCost;
-            updateCombatStats();
-            
-            if (opponentHp <= 0) {
-                endMultiplayerCombat(true);
-            } else {
-                isPlayerTurn = false;
-                combatLog.append("Opponent's turn!\n");
-                waitForOpponentMove();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(gui, "Error sending move to opponent");
-        }
-    }
-
-    private void endMultiplayerCombat(boolean won) {
-        try {
-            multiplayerSocket.close();
-            multiplayerInput.close();
-            multiplayerOutput.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        inCombat = false;
-        if (won) {
-            combatLog.append("You won the battle!\n");
-            JOptionPane.showMessageDialog(gui, "Victory! You defeated your opponent!");
-        } else {
-            combatLog.append("You were defeated!\n");
-            JOptionPane.showMessageDialog(gui, "Defeat! Your opponent was victorious!");
-        }
-        
-        // Return to main menu
-        mainMenu();
-    }
-
     private void updateCombatStats() {
         try {
             if (statsPanel == null) {
@@ -2059,56 +1927,55 @@ class Room {
 // Subclass for Monster rooms.
 class MonsterRoom extends Room {
     private Monster currentMonster;
+    private String theme;
+    Random r;
 
-    // Overloaded constructors to optionally support obstacles.
-    public MonsterRoom(int id) {
+    public MonsterRoom(int id, String theme, long monsterSeed) {
         super(id, "monsterRoom");
-        this.currentMonster = loadRandomMonster(getThemeFromDungeon());
+        this.theme = theme;
+        this.currentMonster = loadRandomMonster(theme);
+        r = new Random(monsterSeed);
     }
 
-    public MonsterRoom(int id, String obstacleType) {
+    public MonsterRoom(int id, String obstacleType, String theme, long monsterSeed) {
         super(id, "monsterRoom", obstacleType);
-        this.currentMonster = loadRandomMonster(getThemeFromDungeon());
-    }
-
-    // This method retrieves the theme for the dungeon.
-    // For simplicity, we assume the first theme from a random monster is used.
-    private String getThemeFromDungeon() {
-        // In a full implementation you might pass the dungeon theme into the
-        // constructor.
-        return "Dark Forest"; // Placeholder: replace with actual theme logic.
+        this.theme = theme;
+        this.currentMonster = loadRandomMonster(theme);
+        r = new Random(monsterSeed);
     }
 
     private Monster loadRandomMonster(String theme) {
         try {
-            String content = new String(Files.readAllBytes(Paths.get("lib/Monsters.json")));
-            JSONObject json = new JSONObject(content);
-            JSONArray allMonsters = json.getJSONArray("monsters");
-            List<JSONObject> valid = new ArrayList<>();
-            for (int i = 0; i < allMonsters.length(); i++) {
-                JSONObject monster = allMonsters.getJSONObject(i);
+            JSONObject monstersData = new JSONObject(new String(Files.readAllBytes(Paths.get("lib/Monsters.json"))));
+            JSONArray monsters = monstersData.getJSONArray("monsters");
+            List<JSONObject> themedMonsters = new ArrayList<>();
+            
+            // Filter monsters by theme
+            for (int i = 0; i < monsters.length(); i++) {
+                JSONObject monster = monsters.getJSONObject(i);
                 JSONArray themes = monster.getJSONArray("themes");
                 for (int j = 0; j < themes.length(); j++) {
-                    if (themes.getString(j).equalsIgnoreCase(theme)) {
-                        valid.add(monster);
+                    if (themes.getString(j).equals(theme)) {
+                        themedMonsters.add(monster);
                         break;
                     }
                 }
             }
-            if (valid.isEmpty())
-                return null;
-            JSONObject selected = valid.get(new Random().nextInt(valid.size()));
-            return new Monster(selected);
-        } catch (IOException e) {
-            System.out.println("Error reading Monsters.json: " + e.getMessage());
-            return null;
-        } catch (JSONException e) {
+            
+            if (!themedMonsters.isEmpty()) {
+                JSONObject selectedMonster = themedMonsters.get(r.nextInt(themedMonsters.size()));
+                return new Monster(selectedMonster);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return currentMonster;
+        return null;
     }
 
     public Monster getMonster() {
+        if (currentMonster == null) {
+            currentMonster = loadRandomMonster(theme);
+        }
         return currentMonster;
     }
 }
@@ -2205,15 +2072,17 @@ class Dungeon {
     private double size;
     private String theme;
     private List<JSONObject> shopItems;
-    private long dungeonSeed; // added to store the seed
+    private long dungeonSeed;
+    private static final String[] THEMES = {"forest", "cave", "castle", "ruins", "temple"};
+    private Random r;
 
     public Dungeon(double seed) {
         rooms = new ArrayList<>();
         shopItems = new ArrayList<>();
-        // Store dungeon seed (casting to long) so it can be reused.
         dungeonSeed = (long) seed;
         random = new Random(dungeonSeed);
         size = (random.nextDouble() * 1.25) + 0.75;
+        theme = THEMES[random.nextInt(THEMES.length)];
 
         // Load and randomize shop items
         try {
@@ -2238,15 +2107,6 @@ class Dungeon {
         int noRooms = (int) (size * 8);
         int noDoors = (int) (((noRooms - 1) * noRooms / 2) * (random.nextDouble() * 0.05) + 0.1);
 
-        String[] dungeonThemes = {
-                "Swampy", "Sewer", "Magical", "Volcanic", "Frozen Ice Cavern",
-                "Ancient Ruins", "Haunted Crypt", "Dark Forest", "Desert Tomb",
-                "Clockwork Fortress", "Corrupted Temple", "Crystal Cavern",
-                "Underwater Shrine", "Abandoned Mine", "Blood Catacombs",
-                "Shadow Realm", "Celestial Tower", "Fungal Hollow",
-                "Cursed Library", "Beast Lair"
-        };
-
         String[] roomObstacles = {
                 "LCK", // Lock
                 "TRP", // Damaging trap
@@ -2260,12 +2120,12 @@ class Dungeon {
             // Room with id 1 is special.
             if (i == 1) {
                 newRoom = new Room(i, "startingRoom");
-                    } else {
+            } else {
                 double chance = random.nextDouble();
                 boolean hasObstacle = random.nextDouble() < 0.25;
                 String obstacle = hasObstacle ? roomObstacles[random.nextInt(roomObstacles.length)] : null;
                 if (chance < 0.5) { // Monster room.
-                    newRoom = hasObstacle ? new MonsterRoom(i, obstacle) : new MonsterRoom(i);
+                    newRoom = hasObstacle ? new MonsterRoom(i, obstacle, theme, random.nextLong()) : new MonsterRoom(i, theme, random.nextLong());
                 } else if (chance < 0.8) { // Treasure room.
                     if (hasObstacle) {
                         newRoom = new TreasureRoom(i, obstacle, dungeonSeed);
@@ -2280,7 +2140,7 @@ class Dungeon {
             }
             rooms.add(newRoom);
         }
-
+        
         // Create a spanning tree and extra connections (unchanged).
         List<Room> connected = new ArrayList<>();
         List<Room> unconnected = new ArrayList<>(rooms);
@@ -2333,6 +2193,10 @@ class Dungeon {
         for (Room room : rooms) {
             System.out.println(room);
         }
+    }
+
+    public String getTheme() {
+        return theme;
     }
 }
 
