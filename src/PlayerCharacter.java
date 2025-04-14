@@ -1,8 +1,9 @@
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.List;
-import java.util.ArrayList;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.json.*;
 import javax.swing.*;
 import java.awt.*;
@@ -202,32 +203,31 @@ class GameGui {
 
         File save = new File(name + ".json");
         try {
-            JSONObject characterData = new JSONObject();
+            JSONObject characterData = player.getCharacterData();
+
+            // Base info
             characterData.put("Name", name.trim());
             characterData.put("Class", characterClass);
 
-            // Set stats based on class
+            // Class-based stats
             switch (characterClass) {
                 case "Warrior":
                     characterData.put("Strength", 15);
                     characterData.put("Dexterity", 8);
                     characterData.put("Toughness", 12);
                     characterData.put("Magic", 5);
-                    characterData.put("Willpower", 8);
                     break;
                 case "Mage":
                     characterData.put("Strength", 5);
                     characterData.put("Dexterity", 8);
                     characterData.put("Toughness", 6);
                     characterData.put("Magic", 15);
-                    characterData.put("Willpower", 12);
                     break;
                 case "Rogue":
                     characterData.put("Strength", 8);
                     characterData.put("Dexterity", 15);
                     characterData.put("Toughness", 8);
                     characterData.put("Magic", 5);
-                    characterData.put("Willpower", 8);
                     break;
             }
 
@@ -240,12 +240,34 @@ class GameGui {
             characterData.put("Base Seed", Math.random());
             characterData.put("Dungeons Completed", 0);
 
+            // Starting inventory: 1 Health Potion, 1 Stamina Tonic
+            JSONArray inventory = new JSONArray();
+            inventory.put("HLT");
+            inventory.put("STM");
+            characterData.put("Inventory", inventory);
+
+            // Starting skills
+            JSONArray skills = new JSONArray();
+            switch (characterClass) {
+                case "Warrior":
+                    skills.put("ATS");
+                    break;
+                case "Mage":
+                    skills.put("ATM");
+                    break;
+                case "Rogue":
+                    skills.put("ATD");
+                    break;
+            }
+            characterData.put("Skills", skills);
+
+            // Save to file using PlayerCharacter data
             try (FileWriter fileWriter = new FileWriter(save)) {
-                fileWriter.write(characterData.toString(4));
+                fileWriter.write(player.getCharacterData().toString(4));
                 fileWriter.flush();
                 JOptionPane.showMessageDialog(gui, "Character created successfully!", "Success",
                         JOptionPane.INFORMATION_MESSAGE);
-                loadSave(save); // Load the newly created save which will open dungeon screen
+                loadSave(save); // Load into game
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(gui,
                         "Failed to save character data:\n" + e.getMessage(),
@@ -315,7 +337,6 @@ class GameGui {
             statsText += "<b>Dexterity:</b> " + characterData.getInt("Dexterity") + "<br>";
             statsText += "<b>Toughness:</b> " + characterData.getInt("Toughness") + "<br>";
             statsText += "<b>Magic:</b> " + characterData.getInt("Magic") + "<br>";
-            statsText += "<b>Willpower:</b> " + characterData.getInt("Willpower") + "<br>";
             statsText += "<b>Dungeons Completed:</b> " + characterData.getInt("Dungeons Completed") + "<br>";
             statsText += "</html>";
 
@@ -347,13 +368,22 @@ class GameGui {
         gui.setLayout(new BorderLayout());
 
         // -- Get or generate the dungeon as usual --
-        long seed = 0;
+        long newDungeonSeed = 0;
         try {
-            seed = (long) (player.getCharacterData().getDouble("Base Seed") * 100000);
+            double base = player.getCharacterData().getDouble("Base Seed");
+            int dungeonsCompleted = player.getCharacterData().getInt("Dungeons Completed");
+
+            // Initialize random with base seed converted into a long.
+            Random r = new Random((long) (base * 100000));
+
+            // Use a for loop to repeatedly generate a new seed.
+            for (int i = 0; i <= dungeonsCompleted; i++) {
+                newDungeonSeed = r.nextLong();
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        currentDungeon = new Dungeon((double) seed);
+        currentDungeon = new Dungeon((double) newDungeonSeed);
 
         // Set currentRoom based on dungeon generation
         for (Room room : currentDungeon.getRoom()) {
@@ -411,8 +441,83 @@ class GameGui {
         gui.setVisible(true);
     }
 
+    private void saveGame() {
+        try {
+            // Update HP and Stamina from current values
+            player.getCharacterData().put("HP", player.getCurrentHp());
+            player.getCharacterData().put("Stamina", player.getCurrentStamina());
+
+            // Increment dungeons completed
+            int dungeonsCompleted = player.getCharacterData().getInt("Dungeons Completed");
+            player.getCharacterData().put("Dungeons Completed", dungeonsCompleted + 1);
+
+            // Save to file
+            try (FileWriter fileWriter = new FileWriter(loadedSave)) {
+                fileWriter.write(player.getCharacterData().toString(4));
+                fileWriter.flush();
+            }
+        } catch (IOException | JSONException e) {
+            JOptionPane.showMessageDialog(gui, "Failed to save game: " + e.getMessage());
+        }
+    }
+
     private void updateRoomPanel() {
         currentRoomPanel.removeAll();
+
+        // Add exit button if in starting room
+        // In updateRoomPanel(), if we're in a startingRoom, add the exit button:
+        if ("startingRoom".equals(currentRoom.getType())) {
+            JButton exitButton = new JButton("Exit Dungeon");
+            exitButton.addActionListener(e -> {
+                // Save game first
+                saveGame();
+                try {
+                    // Increment the dungeons completed count.
+                    int dungeonsCompleted = player.getCharacterData().getInt("Dungeons Completed");
+                    dungeonsCompleted++;
+                    player.getCharacterData().put("Dungeons Completed", dungeonsCompleted);
+
+                    // Obtain the base seed and prepare a Random instance.
+                    double base = player.getCharacterData().getDouble("Base Seed");
+                    Random r = new Random((long) (base * 100000));
+
+                    // Skip forward as many values as dungeons completed.
+                    long newSeed = r.nextLong();
+                    for (int i = 1; i < dungeonsCompleted; i++) {
+                        newSeed = r.nextLong();
+                    }
+
+                    // Generate a new dungeon using the new seed.
+                    currentDungeon = new Dungeon((double) newSeed);
+
+                    // Find the new starting room.
+                    for (Room room : currentDungeon.getRoom()) {
+                        if (room.getId() == 1 && "startingRoom".equals(room.getType())) {
+                            currentRoom = room;
+                            break;
+                        }
+                    }
+                    if (currentRoom == null && !currentDungeon.getRoom().isEmpty()) {
+                        currentRoom = currentDungeon.getRoom().get(0);
+                    }
+
+                    // Refresh the UI.
+                    updateRoomPanel();
+                    graphPanel = new GraphPanel(currentDungeon, currentRoom,
+                            player.getCharacterData().getString("Class"));
+
+                    graphPanel.setCurrentRoom(currentRoom);
+                    graphPanel.repaint();
+                    JSplitPane centerSplit = (JSplitPane) gui.getContentPane().getComponent(2);
+                    centerSplit.setRightComponent(graphPanel);
+
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
+                }
+            });
+            currentRoomPanel.add(exitButton);
+            currentRoomPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+        }
 
         // Room details as individual labels.
         JLabel roomTitle = new JLabel("Room " + currentRoom.getId());
@@ -435,6 +540,72 @@ class GameGui {
 
         currentRoomPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
 
+        // Add shop UI if this is a shop room
+        if ("Shop".equals(currentRoom.getType())) {
+            JLabel shopTitle = new JLabel("Shop Items:");
+            shopTitle.setForeground(Color.WHITE);
+            currentRoomPanel.add(shopTitle);
+
+            try {
+                int playerGold = player.getCharacterData().getInt("Gold");
+                JLabel goldLabel = new JLabel("Your Gold: " + playerGold);
+                goldLabel.setForeground(Color.YELLOW);
+                currentRoomPanel.add(goldLabel);
+
+                List<JSONObject> shopItems = currentDungeon.getShopItems();
+                for (JSONObject item : shopItems) {
+                    JPanel itemPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                    itemPanel.setBackground(new Color(30, 30, 30));
+
+                    String itemText = String.format("%s - %d gold",
+                            item.getString("name"),
+                            item.getInt("goldCost"));
+                    JLabel itemLabel = new JLabel(itemText);
+                    itemLabel.setForeground(Color.WHITE);
+                    itemPanel.add(itemLabel);
+
+                    JButton buyButton = new JButton("Buy");
+                    buyButton.addActionListener(e -> {
+                        try {
+                            int cost = item.getInt("goldCost");
+                            int currentGold = player.getCharacterData().getInt("Gold");
+
+                            if (currentGold >= cost) {
+                                // Deduct gold
+                                player.getCharacterData().put("Gold", currentGold - cost);
+
+                                // Add item to inventory
+                                if (!player.getCharacterData().has("Inventory")) {
+                                    player.getCharacterData().put("Inventory", new JSONArray());
+                                }
+                                JSONArray inventory = player.getCharacterData().getJSONArray("Inventory");
+                                inventory.put(item.getString("id"));
+
+                                JOptionPane.showMessageDialog(gui,
+                                        "Purchased " + item.getString("name") + "!\n" +
+                                                "Effect: " + item.getString("effect"));
+
+                                // Refresh UI
+                                updateRoomPanel();
+                            } else {
+                                JOptionPane.showMessageDialog(gui,
+                                        "Not enough gold! You need " + cost + " but only have " + currentGold,
+                                        "Purchase Failed",
+                                        JOptionPane.WARNING_MESSAGE);
+                            }
+                        } catch (JSONException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+                    itemPanel.add(buyButton);
+                    currentRoomPanel.add(itemPanel);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            currentRoomPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+        }
+
         JLabel connectedLabel = new JLabel("Connected Rooms:");
         connectedLabel.setForeground(Color.WHITE);
         currentRoomPanel.add(connectedLabel);
@@ -445,9 +616,148 @@ class GameGui {
         for (Room neighbor : currentRoom.getNeighbors()) {
             JButton moveButton = new JButton("Go to Room " + neighbor.getId());
             moveButton.addActionListener(e -> {
+                // If the destination room has an obstacle, check bypass options:
+                if (neighbor.hasObstacle()) {
+                    String obstacleType = neighbor.getObstacleType();
+                    JSONArray inventory = player.getCharacterData().optJSONArray("Inventory");
+                    // Build a list of bypass options available from inventory and skills.
+                    List<String> bypassOptions = new ArrayList<>();
+
+                    // Check for items in inventory that match the obstacle type.
+                    if (inventory != null) {
+                        for (int i = 0; i < inventory.length(); i++) {
+                            try {
+                                String itemId = inventory.getString(i);
+                                if (itemId.equals(obstacleType)) {
+                                    bypassOptions.add("Use item: " + itemId);
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace(); // or log the error
+                            }
+                        }
+                    }
+
+                    // Check for skills that match the obstacle type.
+                    // (Assumes that if a skill’s ID equals the obstacle type, it can bypass it.)
+                    try {
+                        JSONArray skills = player.getSkills();
+                        if (skills != null) {
+                            for (int i = 0; i < skills.length(); i++) {
+                                String skillId = skills.getString(i);
+                                if (skillId.equals(obstacleType)) {
+                                    bypassOptions.add("Use skill: " + skillId);
+                                }
+                            }
+                        }
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
+
+                    // If no bypass option is available, tell the player and cancel the move.
+                    if (bypassOptions.isEmpty()) {
+                        JOptionPane.showMessageDialog(gui,
+                                "This room is blocked by an obstacle (" + obstacleType
+                                        + ") and you have no bypass available.");
+                        return; // Do not change room.
+                    } else {
+                        // Let the player choose an option to bypass the obstacle.
+                        int choice = JOptionPane.showOptionDialog(gui,
+                                "This room is blocked by an obstacle (" + obstacleType + ").\n" +
+                                        "Select an option to bypass it or cancel:",
+                                "Obstacle Detected",
+                                JOptionPane.YES_NO_CANCEL_OPTION,
+                                JOptionPane.QUESTION_MESSAGE,
+                                null,
+                                bypassOptions.toArray(),
+                                bypassOptions.get(0));
+
+                        // If the player cancels (choice is closed or negative), do not move.
+                        if (choice < 0) {
+                            return;
+                        } else {
+                            String selectedOption = bypassOptions.get(choice);
+                            // If an inventory item was chosen (option starts with "Use item:"), remove it
+                            // from inventory.
+                            if (selectedOption.startsWith("Use item: ")) {
+                                String usedItem = selectedOption.substring("Use item: ".length());
+                                // Remove one instance of the used item.
+                                for (int i = 0; i < inventory.length(); i++) {
+                                    try {
+                                        if (inventory.getString(i).equals(usedItem)) {
+                                            inventory.remove(i);
+                                            break;
+                                        }
+                                    } catch (JSONException ex) {
+                                        ex.printStackTrace(); // Log or handle error appropriately
+                                    }
+                                }
+                            }
+                            // Bypass approved: continue to move.
+                        }
+                    }
+                }
+
+                // If no obstacle or bypassed, update currentRoom.
                 currentRoom = neighbor;
+
+                // Process room-specific functions.
+                if ("Upgrade".equals(currentRoom.getType()) && !currentRoom.isVisited()) {
+                    try {
+                        player.applyUpgradeRoomBonus();
+                        JOptionPane.showMessageDialog(gui,
+                                "Upgrade room activated!\n+50 XP\n+1 to Strength, Dexterity, Magic, and Toughness\nHP recalculated.");
+                        currentRoom.markVisited();
+                    } catch (JSONException ex) {
+                        JOptionPane.showMessageDialog(gui,
+                                "Error applying upgrade: " + ex.getMessage(),
+                                "Upgrade Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                if ("Treasure".equals(currentRoom.getType()) && !currentRoom.isVisited()) {
+                    try {
+                        TreasureRoom tr = (TreasureRoom) currentRoom;
+                        JSONObject charData = player.getCharacterData();
+
+                        // Add treasure gold
+                        int currentGold = charData.getInt("Gold");
+                        charData.put("Gold", currentGold + tr.getTreasureGold());
+
+                        // Ensure inventory exists
+                        JSONArray inventory;
+                        if (charData.has("Inventory") && charData.get("Inventory") instanceof JSONArray) {
+                            inventory = charData.getJSONArray("Inventory");
+                        } else {
+                            inventory = new JSONArray();
+                            charData.put("Inventory", inventory);
+                        }
+
+                        // Add each treasure item to inventory
+                        for (String item : tr.getTreasureItems()) {
+                            inventory.put(item);
+                        }
+
+                        // Mark room visited
+                        currentRoom.markVisited();
+
+                        JOptionPane.showMessageDialog(gui,
+                                "Treasure room activated!\n+"
+                                        + tr.getTreasureGold() + " Gold\nFound items: " + tr.getTreasureItems());
+
+                    } catch (JSONException ex) {
+                        JOptionPane.showMessageDialog(gui,
+                                "Error accessing treasure: " + ex.getMessage(),
+                                "Treasure Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    } catch (ClassCastException ex) {
+                        JOptionPane.showMessageDialog(gui,
+                                "Invalid room type - expected TreasureRoom",
+                                "Room Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+
                 updateRoomPanel();
-                // Inform the graph panel to update the current room.
                 graphPanel.setCurrentRoom(currentRoom);
             });
             buttonPanel.add(moveButton);
@@ -484,8 +794,86 @@ class GameGui {
             statsPanel.add(createStatLine("Dexterity: " + characterData.getInt("Dexterity")));
             statsPanel.add(createStatLine("Toughness: " + characterData.getInt("Toughness")));
             statsPanel.add(createStatLine("Magic: " + characterData.getInt("Magic")));
-            statsPanel.add(createStatLine("Willpower: " + characterData.getInt("Willpower")));
             statsPanel.add(createStatLine("Dungeons Completed: " + characterData.getInt("Dungeons Completed")));
+
+            // Add consumables section
+            statsPanel.add(Box.createVerticalStrut(20));
+            JLabel consumablesLabel = new JLabel("Use Items:");
+            consumablesLabel.setForeground(Color.WHITE);
+            statsPanel.add(consumablesLabel);
+
+            if (characterData.has("Inventory")) {
+                JSONArray inventory = characterData.getJSONArray("Inventory");
+
+                // Count health potions and stamina tonics
+                int healthPots = 0;
+                int staminaPots = 0;
+                for (int i = 0; i < inventory.length(); i++) {
+                    String itemId = inventory.getString(i);
+                    if ("HLT".equals(itemId))
+                        healthPots++;
+                    if ("STM".equals(itemId))
+                        staminaPots++;
+                }
+
+                // Add health potion button if available
+                if (healthPots > 0) {
+                    JButton healthButton = new JButton("Health Potion (" + healthPots + ")");
+                    healthButton.addActionListener(e -> {
+                        try {
+                            // Remove one potion
+                            for (int i = 0; i < inventory.length(); i++) {
+                                if ("HLT".equals(inventory.getString(i))) {
+                                    inventory.remove(i);
+                                    break;
+                                }
+                            }
+
+                            // Restore 20% HP
+                            int maxHP = characterData.getInt("HP");
+                            int currentHP = characterData.getInt("HP");
+                            int healAmount = (int) (maxHP * 0.2);
+                            characterData.put("HP", Math.min(maxHP, currentHP + healAmount));
+
+                            // Refresh stats panel
+                            dungeonScreen();
+                            JOptionPane.showMessageDialog(gui, "Restored " + healAmount + " HP!");
+                        } catch (JSONException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+                    statsPanel.add(healthButton);
+                }
+
+                // Add stamina tonic button if available
+                if (staminaPots > 0) {
+                    JButton staminaButton = new JButton("Stamina Tonic (" + staminaPots + ")");
+                    staminaButton.addActionListener(e -> {
+                        try {
+                            // Remove one tonic
+                            for (int i = 0; i < inventory.length(); i++) {
+                                if ("STM".equals(inventory.getString(i))) {
+                                    inventory.remove(i);
+                                    break;
+                                }
+                            }
+
+                            // Restore 20% Stamina
+                            int maxStamina = characterData.getInt("Stamina");
+                            int currentStamina = characterData.getInt("Stamina");
+                            int restoreAmount = (int) (maxStamina * 0.2);
+                            characterData.put("Stamina", Math.min(maxStamina, currentStamina + restoreAmount));
+
+                            // Refresh stats panel
+                            dungeonScreen();
+                            JOptionPane.showMessageDialog(gui, "Restored " + restoreAmount + " Stamina!");
+                        } catch (JSONException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+                    statsPanel.add(staminaButton);
+                }
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -505,60 +893,67 @@ class GameGui {
 }
 
 class Room {
-    private int id;
-    private String type;
-    private boolean hasObstacle;
-    private String obstacleType;
-    private java.util.List<Room> neighbors;
-    private boolean visited;
-    private int x, y;
+    protected int id;
+    protected String type;
+    protected boolean hasObstacle;
+    protected String obstacleType;
+    protected java.util.List<Room> neighbors;
+    protected boolean visited;
+    protected int x, y;
 
-    public Room(int id, String type, String y) {
-        this.id = id;
-        this.type = type;
-        hasObstacle = true;
-        obstacleType = y;
-        this.neighbors = new ArrayList<>();
-        visited = false;
-    }
-
-    public boolean hasObstacle() {
-        return (hasObstacle);
-    }
-
-    public String getObstacleType() {
-        return (obstacleType);
-    }
-
-    public boolean isVisited() {
-        return (visited);
-    }
-
-    public String getType() {
-        return type;
-    }
-
+    // Base constructor for rooms without an obstacle.
     public Room(int id, String type) {
         this.id = id;
         this.type = type;
-        hasObstacle = false;
-        obstacleType = "None";
+        this.hasObstacle = false;
+        this.obstacleType = "None";
         this.neighbors = new ArrayList<>();
-        visited = false;
+        this.visited = false;
     }
 
-    public int getId() {
-        return id;
+    // Base constructor for rooms with an obstacle.
+    public Room(int id, String type, String obstacleType) {
+        this.id = id;
+        this.type = type;
+        this.hasObstacle = true;
+        this.obstacleType = obstacleType;
+        this.neighbors = new ArrayList<>();
+        this.visited = false;
+    }
+
+    // Common methods.
+    public void addNeighbor(Room room) {
+        if (!neighbors.contains(room)) {
+            neighbors.add(room);
+        }
     }
 
     public java.util.List<Room> getNeighbors() {
         return neighbors;
     }
 
-    public void addNeighbor(Room room) {
-        if (!neighbors.contains(room)) {
-            neighbors.add(room);
-        }
+    public int getId() {
+        return id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public boolean hasObstacle() {
+        return hasObstacle;
+    }
+
+    public String getObstacleType() {
+        return obstacleType;
+    }
+
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void markVisited() {
+        this.visited = true;
     }
 
     public void setPosition(int x, int y) {
@@ -572,11 +967,108 @@ class Room {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Room " + id + " -> ");
+        StringBuilder sb = new StringBuilder("Room " + id + " (" + type + ") -> ");
         for (Room neighbor : neighbors) {
             sb.append(neighbor.getId()).append(" ");
         }
         return sb.toString();
+    }
+}
+
+// Subclass for Monster rooms.
+class MonsterRoom extends Room {
+    public MonsterRoom(int id) {
+        super(id, "Monster");
+    }
+
+    public MonsterRoom(int id, String obstacleType) {
+        super(id, "Monster", obstacleType);
+    }
+}
+
+// Subclass for Treasure rooms.
+class TreasureRoom extends Room {
+    private int treasureGold;
+    private List<String> treasureItems;
+    // Use an instance-level random seeded using the dungeon seed and room id.
+    private Random treasureRand;
+
+    // Constructor without obstacle: dungeonSeed is passed in.
+    public TreasureRoom(int id, long dungeonSeed) {
+        super(id, "Treasure");
+        treasureRand = new Random(dungeonSeed + id);
+        generateTreasure();
+    }
+
+    // Constructor with obstacle.
+    public TreasureRoom(int id, String obstacleType, long dungeonSeed) {
+        super(id, "Treasure", obstacleType);
+        treasureRand = new Random(dungeonSeed + id);
+        generateTreasure();
+    }
+
+    private void generateTreasure() {
+        // Generate gold between 100 and 500 in multiples of 10.
+        treasureGold = 100 + treasureRand.nextInt(41) * 10;
+        treasureItems = new ArrayList<>();
+
+        // Load items from Items.json
+        try {
+            String itemsJson = new String(Files.readAllBytes(Paths.get("lib/Items.json")));
+            JSONObject itemsData = new JSONObject(itemsJson);
+            JSONArray allItems = itemsData.getJSONArray("items");
+
+            // Convert to list for shuffling
+            List<JSONObject> itemList = new ArrayList<>();
+            for (int i = 0; i < allItems.length(); i++) {
+                itemList.add(allItems.getJSONObject(i));
+            }
+
+            // Shuffle using dungeon seed + room ID for consistency
+            Collections.shuffle(itemList, treasureRand);
+
+            // Select 1-3 random items
+            int numItems = 1 + treasureRand.nextInt(3); // 1 to 3 items
+            for (int i = 0; i < Math.min(numItems, itemList.size()); i++) {
+                treasureItems.add(itemList.get(i).getString("id"));
+            }
+        } catch (IOException | JSONException e) {
+            // Fallback to placeholder if file read fails
+            e.printStackTrace();
+            for (int i = 0; i < 3; i++) {
+                treasureItems.add("Item" + treasureRand.nextInt(1000));
+            }
+        }
+    }
+
+    public int getTreasureGold() {
+        return treasureGold;
+    }
+
+    public List<String> getTreasureItems() {
+        return treasureItems;
+    }
+}
+
+// Subclass for Upgrade rooms.
+class UpgradeRoom extends Room {
+    public UpgradeRoom(int id) {
+        super(id, "Upgrade");
+    }
+
+    public UpgradeRoom(int id, String obstacleType) {
+        super(id, "Upgrade", obstacleType);
+    }
+}
+
+// Subclass for Shop rooms.
+class ShopRoom extends Room {
+    public ShopRoom(int id) {
+        super(id, "Shop");
+    }
+
+    public ShopRoom(int id, String obstacleType) {
+        super(id, "Shop", obstacleType);
     }
 }
 
@@ -585,12 +1077,37 @@ class Dungeon {
     private Random random;
     private double size;
     private String theme;
+    private List<JSONObject> shopItems;
+    private long dungeonSeed; // added to store the seed
 
     public Dungeon(double seed) {
         rooms = new ArrayList<>();
-        // Initialize random with seed cast to long.
-        random = new Random((long) seed);
+        shopItems = new ArrayList<>();
+        // Store dungeon seed (casting to long) so it can be reused.
+        dungeonSeed = (long) seed;
+        random = new Random(dungeonSeed);
         size = (random.nextDouble() * 1.25) + 0.75;
+
+        // Load and randomize shop items
+        try {
+            String itemsJson = new String(Files.readAllBytes(Paths.get("lib/Items.json")));
+            JSONObject itemsData = new JSONObject(itemsJson);
+            JSONArray allItems = itemsData.getJSONArray("items");
+
+            // Shuffle all items and pick first 5
+            List<JSONObject> itemList = new ArrayList<>();
+            for (int i = 0; i < allItems.length(); i++) {
+                itemList.add(allItems.getJSONObject(i));
+            }
+            Collections.shuffle(itemList, random);
+
+            // Store first 5 items as shop inventory
+            for (int i = 0; i < Math.min(5, itemList.size()); i++) {
+                shopItems.add(itemList.get(i));
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
         int noRooms = (int) (size * 8);
         int noDoors = (int) (((noRooms - 1) * noRooms / 2) * (random.nextDouble() * 0.05) + 0.1);
 
@@ -608,51 +1125,38 @@ class Dungeon {
                 "TRP", // Damaging trap
                 "MAG", // Magic Barrier
                 "BRW", // Breakable Wall
-                "DMN" // Demon Guardian
         };
 
-        // Define the probabilities for each room type (except the starting room)
-        // Monster: 50%, Treasure: 30%, Upgrade: 10%, Shop: 10%
-        // The cumulative probability values are used to decide the type.
-        // (i.e. chance < 0.5 for Monster, chance >= 0.5 and < 0.8 for Treasure, etc.)
-
-        this.theme = dungeonThemes[random.nextInt(dungeonThemes.length)];
-
-        // Create rooms with correct room type and obstacle assignment.
+        // Create rooms.
         for (int i = 0; i < noRooms; i++) {
-            String roomType;
+            Room newRoom;
             // Room with id 1 is special.
             if (i == 1) {
-                roomType = "startingRoom";
+                newRoom = new Room(i, "startingRoom");
             } else {
                 double chance = random.nextDouble();
-                if (chance < 0.5) {
-                    roomType = "Monster";
-                } else if (chance < 0.8) {
-                    roomType = "Treasure";
-                } else if (chance < 0.9) {
-                    roomType = "Upgrade";
-                } else {
-                    roomType = "Shop";
+                boolean hasObstacle = random.nextDouble() < 0.25;
+                String obstacle = hasObstacle ? roomObstacles[random.nextInt(roomObstacles.length)] : null;
+                if (chance < 0.5) { // Monster room.
+                    newRoom = hasObstacle ? new MonsterRoom(i, obstacle) : new MonsterRoom(i);
+                } else if (chance < 0.8) { // Treasure room.
+                    if (hasObstacle) {
+                        newRoom = new TreasureRoom(i, obstacle, dungeonSeed);
+                    } else {
+                        newRoom = new TreasureRoom(i, dungeonSeed);
+                    }
+                } else if (chance < 0.9) { // Upgrade room.
+                    newRoom = hasObstacle ? new UpgradeRoom(i, obstacle) : new UpgradeRoom(i);
+                } else { // Shop room.
+                    newRoom = hasObstacle ? new ShopRoom(i, obstacle) : new ShopRoom(i);
                 }
             }
-            // Determine if an obstacle should be added (25% chance).
-            boolean hasObstacle = random.nextDouble() < 0.25;
-            if (hasObstacle) {
-                // Choose an obstacle type randomly from the available options.
-                String obstacleType = roomObstacles[random.nextInt(roomObstacles.length)];
-                // Use the three-argument constructor.
-                rooms.add(new Room(i, roomType, obstacleType));
-            } else {
-                // Use the two-argument constructor.
-                rooms.add(new Room(i, roomType));
-            }
+            rooms.add(newRoom);
         }
-        // First create minimum spanning tree to ensure connectivity
+
+        // Create a spanning tree and extra connections (unchanged).
         List<Room> connected = new ArrayList<>();
         List<Room> unconnected = new ArrayList<>(rooms);
-
-        // Start with random room
         Room first = unconnected.remove(random.nextInt(unconnected.size()));
         connected.add(first);
 
@@ -665,7 +1169,6 @@ class Dungeon {
             connected.add(toConnect);
         }
 
-        // Add additional random connections
         int extraConnections = noDoors - (noRooms - 1);
         while (extraConnections > 0) {
             int fromIndex = random.nextInt(noRooms);
@@ -683,17 +1186,20 @@ class Dungeon {
             }
         }
 
-        // Assign random positions to nodes
+        // Set random positions.
         for (Room node : rooms) {
             int x = 50 + random.nextInt(1200);
             int y = 50 + random.nextInt(800);
             node.setPosition(x, y);
-
         }
     }
 
     public java.util.List<Room> getRoom() {
         return rooms;
+    }
+
+    public List<JSONObject> getShopItems() {
+        return shopItems;
     }
 
     public void printGraph() {
@@ -802,6 +1308,24 @@ public class PlayerCharacter {
         }
     }
 
+    public void applyUpgradeRoomBonus() throws JSONException {
+        // Add XP bonus
+        int currentExp = characterData.getInt("Exp");
+        characterData.put("Exp", currentExp + 50);
+
+        // Increase each stat by 1
+        characterData.put("Strength", characterData.getInt("Strength") + 1);
+        characterData.put("Dexterity", characterData.getInt("Dexterity") + 1);
+        characterData.put("Magic", characterData.getInt("Magic") + 1);
+        characterData.put("Toughness", characterData.getInt("Toughness") + 1);
+
+        // Recalculate HP based on new Toughness and current Level.
+        int toughness = characterData.getInt("Toughness");
+        int level = characterData.getInt("Level");
+        int newHp = level * toughness / 10 * 100;
+        characterData.put("HP", newHp);
+    }
+
     private void loadCharacterData(File jsonFile) throws IOException, JSONException {
         if (!jsonFile.exists()) {
             throw new IOException("Save file does not exist");
@@ -827,6 +1351,20 @@ public class PlayerCharacter {
         }
     }
 
+    public void checkLevelUp() {
+        try {
+            int currentExp = characterData.getInt("Exp");
+            int currentLevel = characterData.getInt("Level");
+            if (currentExp >= 100) {
+                levelUp();
+                characterData.put("Level", currentLevel + 1);
+                characterData.put("Exp", currentExp - 100); // Reset XP after leveling up
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public JSONObject getCharacterData() {
         return characterData;
     }
@@ -838,4 +1376,133 @@ public class PlayerCharacter {
     public int getLevel() throws JSONException {
         return characterData.getInt("Level");
     }
+
+    public int getCurrentHp() throws JSONException {
+        return characterData.getInt("HP");
+    }
+
+    public int getCurrentStamina() throws JSONException {
+        return characterData.getInt("Stamina");
+    }
+
+    public JSONArray getSkills() throws JSONException {
+        if (!characterData.has("Skills")) {
+            characterData.put("Skills", new JSONArray());
+        }
+        return characterData.getJSONArray("Skills");
+    }
+
+    public void addSkill(String skillId) throws JSONException {
+        JSONArray skills = getSkills();
+        skills.put(skillId);
+        characterData.put("Skills", skills);
+    }
+
+    public JSONArray getEligibleSkills() throws JSONException, IOException {
+        JSONArray eligible = new JSONArray();
+        String charClass = characterData.getString("Class");
+
+        // Read skills from Skills.json
+        String skillsJsonStr = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("lib/Skills.json")));
+        JSONObject skillsJson = new JSONObject(skillsJsonStr);
+        JSONArray allSkills = skillsJson.getJSONArray("skills");
+
+        for (int i = 0; i < allSkills.length(); i++) {
+            JSONObject skill = allSkills.getJSONObject(i);
+            String restriction = skill.optString("classRestriction", "all");
+            if (restriction.equals("all") || restriction.equals(charClass)) {
+                eligible.put(skill.getString("id"));
+            }
+        }
+        return eligible;
+    }
+
+    public void levelUp() throws JSONException {
+        // Existing level-up calculations.
+        int toughness = characterData.getInt("Toughness");
+        int newHp = getLevel() * toughness / 10 * 100;
+        characterData.put("HP", newHp);
+
+        // Increase stamina by 100 per level (base level-up bonus)
+        int newStamina = getCurrentStamina() + 100;
+        characterData.put("Stamina", newStamina);
+
+        // Increment level.
+        characterData.put("Level", getLevel() + 1);
+
+        // --- New Skill Selection ---
+        // Build the list of choices. We offer the multiclass option only if it hasn’t
+        // been taken.
+        List<String> skillOptions = new ArrayList<>();
+        if (!characterData.has("SecondaryClass")) {
+            skillOptions.add("Multiclass (Add Secondary Class)");
+        }
+        // Options that can be taken repeatedly.
+        skillOptions.add("Buff a stat (+1)");
+        skillOptions.add("Increase Stamina (+50)");
+
+        String[] optionsArray = skillOptions.toArray(new String[0]);
+        String selectedSkill = (String) JOptionPane.showInputDialog(
+                null,
+                "Choose a skill for your level up:",
+                "Skill Selection",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                optionsArray,
+                optionsArray[0]);
+
+        if (selectedSkill != null) {
+            if (selectedSkill.contains("Multiclass")) {
+                // Prompt for secondary class selection from those not equal to the primary
+                // class.
+                String primaryClass = characterData.getString("Class");
+                String[] classes = { "Warrior", "Mage", "Rogue" };
+                List<String> availableClasses = new ArrayList<>();
+                for (String cls : classes) {
+                    if (!cls.equals(primaryClass)) {
+                        availableClasses.add(cls);
+                    }
+                }
+                String[] availableArray = availableClasses.toArray(new String[0]);
+                String secondary = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Select a secondary class:",
+                        "Multiclass Selection",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        availableArray,
+                        availableArray[0]);
+                if (secondary != null && !secondary.trim().isEmpty()) {
+                    characterData.put("SecondaryClass", secondary);
+                    JOptionPane.showMessageDialog(null, "Secondary class " + secondary + " added!");
+                }
+                // Record that the multiclass skill was chosen.
+                addSkill("MULTICLASS");
+            } else if (selectedSkill.contains("Buff a stat")) {
+                // Let the player choose which stat to buff.
+                String[] statsOptions = { "Strength", "Dexterity", "Toughness", "Magic" };
+                String selectedStat = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Select a stat to buff (+1):",
+                        "Stat Buff Selection",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        statsOptions,
+                        statsOptions[0]);
+                if (selectedStat != null && !selectedStat.trim().isEmpty()) {
+                    int currentStat = characterData.getInt(selectedStat);
+                    characterData.put(selectedStat, currentStat + 1);
+                    addSkill("BUFF_" + selectedStat.toUpperCase());
+                    JOptionPane.showMessageDialog(null, selectedStat + " increased by 1!");
+                }
+            } else if (selectedSkill.contains("Increase Stamina")) {
+                // Increase Stamina directly by 50.
+                int currentStamina = characterData.getInt("Stamina");
+                characterData.put("Stamina", currentStamina + 50);
+                addSkill("BUFF_STAMINA");
+                JOptionPane.showMessageDialog(null, "Stamina increased by 50!");
+            }
+        }
+    }
+
 }

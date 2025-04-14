@@ -1,0 +1,28 @@
+NEGATIVE CONDITIONS
+-------------------
+BR	Burn	        Deals fire damage over time
+FR	Freeze	        Reduces actions or slows target
+ST	Stun	        Skips the next turn
+CR	Cripple	        Reduces physical damage or movement
+KO	Knockout	    May skip turn or reduce awareness
+MR	Stamina Ruin	Reduces Stamina
+EN	Enfeeble	    Lowers Damage
+BL	Blind	        Reduces hit chance
+DS	Dazed	        Lowers all stats or confusion
+PP	Paralyze	    May skip turns completely and increases damage taken
+DN	Darkness	    Applies fear, confusion, or blind aura
+SL	Silence	        Blocks spell and skill usage
+PS	Poison	        Damages target each turn
+DP	Disrupt	        Weakens armor
+WK	Weaken	        Reduces target's attack power
+
+POSITIVE CONDTIONS
+-------------------
+FT	Fortify	        Increases Damage Reduction
+SP	Speed	        Increases Dexterity
+CR	Crit Up	        Increases critical hit chance or damage
+ST	Strength	    Increases Strength
+AR	Arcane Boost	Increases Magic
+DF	Deflect	        Reflects a portion of incoming damage
+IN	Insight	        Increases skill accuracy or critical resist
+EV	Evasion	        Chance to completely avoid attacks

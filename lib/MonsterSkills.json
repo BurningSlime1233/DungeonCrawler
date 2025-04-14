@@ -1,0 +1,404 @@
+{
+    "skills": [
+      {
+        "id": "BIT",
+        "name": "Bite",
+        "stat": "STR",
+        "staminaCost": 8,
+        "condition": { "id": "CR", "duration": 2, "save": "DEX" },
+        "scaling": { "stamina": "LOW", "damage": "MED" }
+      },
+      {
+        "id": "SCR",
+        "name": "Scratch",
+        "stat": "STR",
+        "staminaCost": 6,
+        "condition": {},
+        "scaling": { "stamina": "LOW", "damage": "LOW" }
+      },
+      {
+        "id": "CLA",
+        "name": "Claw Swipe",
+        "stat": "STR",
+        "staminaCost": 10,
+        "condition": { "id": "BL", "duration": 2, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "TWH",
+        "name": "Tail Whip",
+        "stat": "STR",
+        "staminaCost": 9,
+        "condition": { "id": "DS", "duration": 1, "save": "FOR" },
+        "scaling": { "stamina": "LOW", "damage": "LOW" }
+      },
+      {
+        "id": "ROR",
+        "name": "Roar",
+        "stat": "STR",
+        "staminaCost": 12,
+        "condition": { "id": "WK", "duration": 2, "save": "STR" },
+        "scaling": { "stamina": "MED", "damage": "LOW" }
+      },
+      {
+        "id": "STG",
+        "name": "Sting",
+        "stat": "DEX",
+        "staminaCost": 7,
+        "condition": { "id": "PS", "duration": 3, "save": "DEX" },
+        "scaling": { "stamina": "LOW", "damage": "MED" }
+      },
+      {
+        "id": "GOR",
+        "name": "Gore",
+        "stat": "STR",
+        "staminaCost": 11,
+        "condition": { "id": "CR", "duration": 2, "save": "STR" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "LUN",
+        "name": "Lunge",
+        "stat": "STR",
+        "staminaCost": 10,
+        "condition": {},
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "IMP",
+        "name": "Impale",
+        "stat": "STR",
+        "staminaCost": 13,
+        "condition": { "id": "KO", "duration": 1, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "HIG" }
+      },
+      {
+        "id": "SLH",
+        "name": "Slash",
+        "stat": "STR",
+        "staminaCost": 9,
+        "condition": {},
+        "scaling": { "stamina": "LOW", "damage": "MED" }
+      },
+      {
+        "id": "CRU",
+        "name": "Crush",
+        "stat": "STR",
+        "staminaCost": 14,
+        "condition": { "id": "ST", "duration": 1, "save": "FOR" },
+        "scaling": { "stamina": "MED", "damage": "HIG" }
+      },
+      {
+        "id": "RND",
+        "name": "Rend",
+        "stat": "STR",
+        "staminaCost": 12,
+        "condition": { "id": "CR", "duration": 3, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "HIG" }
+      },
+      {
+        "id": "SMH",
+        "name": "Smash",
+        "stat": "STR",
+        "staminaCost": 16,
+        "condition": { "id": "ST", "duration": 2, "save": "FOR" },
+        "scaling": { "stamina": "HIG", "damage": "MED" }
+      },
+      {
+        "id": "TKL",
+        "name": "Tackle",
+        "stat": "STR",
+        "staminaCost": 10,
+        "condition": {},
+        "scaling": { "stamina": "MED", "damage": "LOW" }
+      },
+      {
+        "id": "EXP",
+        "name": "Expel Acid",
+        "stat": "MAG",
+        "staminaCost": 13,
+        "condition": { "id": "EN", "duration": 3, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "VPS",
+        "name": "Venomous Spit",
+        "stat": "MAG",
+        "staminaCost": 11,
+        "condition": { "id": "PS", "duration": 4, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "DRK",
+        "name": "Dark Howl",
+        "stat": "MAG",
+        "staminaCost": 15,
+        "condition": { "id": "DN", "duration": 2, "save": "STR" },
+        "scaling": { "stamina": "HIG", "damage": "MED" }
+      },
+      {
+        "id": "FRB",
+        "name": "Fire Breath",
+        "stat": "MAG",
+        "staminaCost": 18,
+        "condition": { "id": "BR", "duration": 3, "save": "FOR" },
+        "scaling": { "stamina": "HIG", "damage": "HIG" }
+      },
+      {
+        "id": "ICB",
+        "name": "Ice Breath",
+        "stat": "MAG",
+        "staminaCost": 18,
+        "condition": { "id": "FR", "duration": 3, "save": "FOR" },
+        "scaling": { "stamina": "HIG", "damage": "HIG" }
+      },
+      {
+        "id": "ACS",
+        "name": "Acid Spray",
+        "stat": "MAG",
+        "staminaCost": 17,
+        "condition": { "id": "EN", "duration": 3, "save": "DEX" },
+        "scaling": { "stamina": "HIG", "damage": "MED" }
+      },
+      {
+        "id": "GAZ",
+        "name": "Mystic Gaze",
+        "stat": "MAG",
+        "staminaCost": 12,
+        "condition": { "id": "SL", "duration": 2, "save": "MAG" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "SHR",
+        "name": "Shred",
+        "stat": "STR",
+        "staminaCost": 10,
+        "condition": { "id": "CR", "duration": 2, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "RIP",
+        "name": "Rip",
+        "stat": "STR",
+        "staminaCost": 11,
+        "condition": {},
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "BDL",
+        "name": "Blood Leech",
+        "stat": "MAG",
+        "staminaCost": 14,
+        "condition": { "id": "EN", "duration": 2, "save": "FOR" },
+        "scaling": { "stamina": "HIG", "damage": "MED" }
+      },
+      {
+        "id": "HWS",
+        "name": "Howl",
+        "stat": "STR",
+        "staminaCost": 12,
+        "condition": { "id": "WK", "duration": 3, "save": "STR" },
+        "scaling": { "stamina": "MED", "damage": "LOW" }
+      },
+      {
+        "id": "MPT",
+        "name": "Maul Punch",
+        "stat": "STR",
+        "staminaCost": 13,
+        "condition": { "id": "ST", "duration": 1, "save": "FOR" },
+        "scaling": { "stamina": "MED", "damage": "HIG" }
+      },
+      {
+        "id": "CHG",
+        "name": "Charge",
+        "stat": "STR",
+        "staminaCost": 16,
+        "condition": { "id": "KO", "duration": 1, "save": "STR" },
+        "scaling": { "stamina": "HIG", "damage": "MED" }
+      },
+      {
+        "id": "PSY",
+        "name": "Psychic Scream",
+        "stat": "MAG",
+        "staminaCost": 15,
+        "condition": { "id": "DS", "duration": 2, "save": "MAG" },
+        "scaling": { "stamina": "HIG", "damage": "MED" }
+      },
+      {
+        "id": "BLT",
+        "name": "Blight",
+        "stat": "MAG",
+        "staminaCost": 14,
+        "condition": { "id": "EN", "duration": 3, "save": "FOR" },
+        "scaling": { "stamina": "MED", "damage": "HIG" }
+      },
+      {
+        "id": "DEC",
+        "name": "Decay Touch",
+        "stat": "MAG",
+        "staminaCost": 12,
+        "condition": { "id": "DN", "duration": 2, "save": "FOR" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "COR",
+        "name": "Corrode",
+        "stat": "MAG",
+        "staminaCost": 11,
+        "condition": { "id": "EN", "duration": 2, "save": "FOR" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "SLP",
+        "name": "Sleep Gaze",
+        "stat": "MAG",
+        "staminaCost": 10,
+        "condition": { "id": "SL", "duration": 3, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "LOW" }
+      },
+      {
+        "id": "SIG",
+        "name": "Sigil of Death",
+        "stat": "MAG",
+        "staminaCost": 18,
+        "condition": { "id": "DN", "duration": 3, "save": "MAG" },
+        "scaling": { "stamina": "HIG", "damage": "HIG" }
+      },
+      {
+        "id": "FUR",
+        "name": "Furious Roar",
+        "stat": "STR",
+        "staminaCost": 15,
+        "condition": { "id": "WK", "duration": 2, "save": "STR" },
+        "scaling": { "stamina": "MED", "damage": "LOW" }
+      },
+      {
+        "id": "WND",
+        "name": "Wind Gust",
+        "stat": "MAG",
+        "staminaCost": 12,
+        "condition": { "id": "DS", "duration": 2, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "QCK",
+        "name": "Quick Jab",
+        "stat": "DEX",
+        "staminaCost": 8,
+        "condition": {},
+        "scaling": { "stamina": "LOW", "damage": "LOW" }
+      },
+      {
+        "id": "HNK",
+        "name": "Hunk Chop",
+        "stat": "STR",
+        "staminaCost": 14,
+        "condition": { "id": "CR", "duration": 2, "save": "STR" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "PNK",
+        "name": "Pounce",
+        "stat": "DEX",
+        "staminaCost": 13,
+        "condition": { "id": "KO", "duration": 1, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "SPR",
+        "name": "Spore Release",
+        "stat": "MAG",
+        "staminaCost": 10,
+        "condition": { "id": "DS", "duration": 3, "save": "MAG" },
+        "scaling": { "stamina": "MED", "damage": "LOW" }
+      },
+      {
+        "id": "VOM",
+        "name": "Vomit Slime",
+        "stat": "MAG",
+        "staminaCost": 11,
+        "condition": { "id": "EN", "duration": 2, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "MUD",
+        "name": "Mud Slam",
+        "stat": "STR",
+        "staminaCost": 9,
+        "condition": { "id": "DS", "duration": 2, "save": "DEX" },
+        "scaling": { "stamina": "LOW", "damage": "LOW" }
+      },
+      {
+        "id": "RUN",
+        "name": "Run Down",
+        "stat": "STR",
+        "staminaCost": 10,
+        "condition": {},
+        "scaling": { "stamina": "MED", "damage": "LOW" }
+      },
+      {
+        "id": "ECH",
+        "name": "Echoing Shriek",
+        "stat": "MAG",
+        "staminaCost": 14,
+        "condition": { "id": "DN", "duration": 2, "save": "MAG" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "BNG",
+        "name": "Banging Blow",
+        "stat": "STR",
+        "staminaCost": 12,
+        "condition": { "id": "ST", "duration": 1, "save": "STR" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "WHR",
+        "name": "Whirlwind",
+        "stat": "DEX",
+        "staminaCost": 16,
+        "condition": { "id": "DS", "duration": 2, "save": "DEX" },
+        "scaling": { "stamina": "HIG", "damage": "HIG" }
+      },
+      {
+        "id": "GLW",
+        "name": "Glacial Smash",
+        "stat": "STR",
+        "staminaCost": 17,
+        "condition": { "id": "FR", "duration": 2, "save": "FOR" },
+        "scaling": { "stamina": "HIG", "damage": "MED" }
+      },
+      {
+        "id": "VOL",
+        "name": "Voltaic Shock",
+        "stat": "MAG",
+        "staminaCost": 15,
+        "condition": { "id": "ST", "duration": 1, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "THR",
+        "name": "Thrust",
+        "stat": "STR",
+        "staminaCost": 11,
+        "condition": {},
+        "scaling": { "stamina": "LOW", "damage": "MED" }
+      },
+      {
+        "id": "RAZ",
+        "name": "Razor Claws",
+        "stat": "DEX",
+        "staminaCost": 13,
+        "condition": { "id": "CR", "duration": 2, "save": "DEX" },
+        "scaling": { "stamina": "MED", "damage": "MED" }
+      },
+      {
+        "id": "GUL",
+        "name": "Gulp",
+        "stat": "STR",  
+        "staminaCost": 14,
+        "condition": { "id": "EN", "duration": 2, "save": "FOR" },
+        "scaling": { "stamina": "MED", "damage": "HIG" }
+      }
+    ]
+  }

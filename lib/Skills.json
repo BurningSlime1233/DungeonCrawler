@@ -1,0 +1,716 @@
+{
+  "skills": [
+    {
+      "id": "FIR",
+      "name": "Fireball",
+      "stat": "MAG",
+      "staminaCost": 15,
+      "condition": {
+        "id": "BR",
+        "duration": 3,
+        "save": "FOR"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "HIG"
+      },
+      "classRestriction": "mage",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "ICE",
+      "name": "Ice Shard",
+      "stat": "MAG",
+      "staminaCost": 12,
+      "condition": {
+        "id": "FR",
+        "duration": 2,
+        "save": "FOR"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "MED"
+      },
+      "classRestriction": "mage",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "LGT",
+      "name": "Lightning Strike",
+      "stat": "MAG",
+      "staminaCost": 18,
+      "condition": {
+        "id": "ST",
+        "duration": 1,
+        "save": "DEX"
+      },
+      "scaling": {
+        "stamina": "HIG",
+        "damage": "HIG"
+      },
+      "classRestriction": "mage",
+      "buff": {
+        "id": "SP",
+        "duration": 1
+      }
+    },
+    {
+      "id": "SLC",
+      "name": "Slice",
+      "stat": "STR",
+      "staminaCost": 10,
+      "condition": {},
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "MED"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "BRC",
+      "name": "Breach",
+      "stat": "STR",
+      "staminaCost": 12,
+      "condition": {},
+      "scaling": {
+        "stamina": "MED",
+        "damage": "MED"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "STN",
+      "name": "Stun Smash",
+      "stat": "STR",
+      "staminaCost": 20,
+      "condition": {
+        "id": "ST",
+        "duration": 1,
+        "save": "FOR"
+      },
+      "scaling": {
+        "stamina": "HIG",
+        "damage": "HIG"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "PRK",
+      "name": "Piercing Strike",
+      "stat": "DEX",
+      "staminaCost": 15,
+      "condition": {},
+      "scaling": {
+        "stamina": "MED",
+        "damage": "MED"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "CR",
+        "duration": 2
+      }
+    },
+    {
+      "id": "DAG",
+      "name": "Dagger Throw",
+      "stat": "DEX",
+      "staminaCost": 8,
+      "condition": {
+        "id": "BL",
+        "duration": 2,
+        "save": "DEX"
+      },
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "LOW"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "STM",
+      "name": "Stealth",
+      "stat": "DEX",
+      "staminaCost": 5,
+      "condition": {},
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "LOW"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "EV",
+        "duration": 3
+      }
+    },
+    {
+      "id": "BCK",
+      "name": "Backstab",
+      "stat": "DEX",
+      "staminaCost": 12,
+      "condition": {
+        "id": "CR",
+        "duration": 3,
+        "save": "DEX"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "HIG"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "CR",
+        "duration": 2
+      }
+    },
+    {
+      "id": "HVR",
+      "name": "Heavy Swing",
+      "stat": "STR",
+      "staminaCost": 14,
+      "condition": {},
+      "scaling": {
+        "stamina": "MED",
+        "damage": "MED"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "RPD",
+      "name": "Rapid Dash",
+      "stat": "DEX",
+      "staminaCost": 10,
+      "condition": {},
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "LOW"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "SP",
+        "duration": 2
+      }
+    },
+    {
+      "id": "SWT",
+      "name": "Sweeping Strike",
+      "stat": "STR",
+      "staminaCost": 16,
+      "condition": {
+        "id": "KO",
+        "duration": 1,
+        "save": "STR"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "MED"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "ST",
+        "duration": 2
+      }
+    },
+    {
+      "id": "MGC",
+      "name": "Arcane Blast",
+      "stat": "MAG",
+      "staminaCost": 17,
+      "condition": {
+        "id": "MR",
+        "duration": 2,
+        "save": "MAG"
+      },
+      "scaling": {
+        "stamina": "HIG",
+        "damage": "MED"
+      },
+      "classRestriction": "mage",
+      "buff": {
+        "id": "AR",
+        "duration": 2
+      }
+    },
+    {
+      "id": "ENF",
+      "name": "Enfeeble",
+      "stat": "MAG",
+      "staminaCost": 9,
+      "condition": {
+        "id": "EN",
+        "duration": 3,
+        "save": "FOR"
+      },
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "MED"
+      },
+      "classRestriction": "all",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "SHD",
+      "name": "Shield Bash",
+      "stat": "STR",
+      "staminaCost": 11,
+      "condition": {
+        "id": "ST",
+        "duration": 1,
+        "save": "STR"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "LOW"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "FT",
+        "duration": 2
+      }
+    },
+    {
+      "id": "HCK",
+      "name": "Hack",
+      "stat": "STR",
+      "staminaCost": 13,
+      "condition": {
+        "id": "BL",
+        "duration": 2,
+        "save": "DEX"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "MED"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "SLM",
+      "name": "Silent Maim",
+      "stat": "DEX",
+      "staminaCost": 12,
+      "condition": {
+        "id": "CR",
+        "duration": 2,
+        "save": "DEX"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "MED"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "FUR",
+      "name": "Fury Strike",
+      "stat": "STR",
+      "staminaCost": 15,
+      "condition": {},
+      "scaling": {
+        "stamina": "MED",
+        "damage": "HIG"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "ST",
+        "duration": 2
+      }
+    },
+    {
+      "id": "WVD",
+      "name": "Waver",
+      "stat": "MAG",
+      "staminaCost": 8,
+      "condition": {
+        "id": "DS",
+        "duration": 1,
+        "save": "MAG"
+      },
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "LOW"
+      },
+      "classRestriction": "all",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "RFL",
+      "name": "Reflect",
+      "stat": "MAG",
+      "staminaCost": 10,
+      "condition": {},
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "LOW"
+      },
+      "classRestriction": "all",
+      "buff": {
+        "id": "DF",
+        "duration": 1
+      }
+    },
+    {
+      "id": "DGR",
+      "name": "Dangerous Grasp",
+      "stat": "DEX",
+      "staminaCost": 14,
+      "condition": {
+        "id": "PP",
+        "duration": 3,
+        "save": "STR"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "MED"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "FRS",
+      "name": "Frost Slash",
+      "stat": "MAG",
+      "staminaCost": 13,
+      "condition": {
+        "id": "FR",
+        "duration": 2,
+        "save": "FOR"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "MED"
+      },
+      "classRestriction": "mage",
+      "buff": {
+        "id": "FT",
+        "duration": 2
+      }
+    },
+    {
+      "id": "ECL",
+      "name": "Eclipse",
+      "stat": "MAG",
+      "staminaCost": 20,
+      "condition": {
+        "id": "DN",
+        "duration": 2,
+        "save": "MAG"
+      },
+      "scaling": {
+        "stamina": "HIG",
+        "damage": "HIG"
+      },
+      "classRestriction": "mage",
+      "buff": {
+        "id": "AR",
+        "duration": 3
+      }
+    },
+    {
+      "id": "BLD",
+      "name": "Blade Dance",
+      "stat": "DEX",
+      "staminaCost": 18,
+      "condition": {
+        "id": "SL",
+        "duration": 3,
+        "save": "DEX"
+      },
+      "scaling": {
+        "stamina": "HIG",
+        "damage": "HIG"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "SP",
+        "duration": 2
+      }
+    },
+    {
+      "id": "RFT",
+      "name": "Rift Burst",
+      "stat": "MAG",
+      "staminaCost": 19,
+      "condition": {
+        "id": "DS",
+        "duration": 2,
+        "save": "MAG"
+      },
+      "scaling": {
+        "stamina": "HIG",
+        "damage": "MED"
+      },
+      "classRestriction": "mage",
+      "buff": {
+        "id": "EN",
+        "duration": 2
+      }
+    },
+    {
+      "id": "SAB",
+      "name": "Sabotage",
+      "stat": "DEX",
+      "staminaCost": 10,
+      "condition": {
+        "id": "DP",
+        "duration": 2,
+        "save": "DEX"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "LOW"
+      },
+      "classRestriction": "all",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "MIR",
+      "name": "Mirror Shield",
+      "stat": "MAG",
+      "staminaCost": 12,
+      "condition": {},
+      "scaling": {
+        "stamina": "MED",
+        "damage": "LOW"
+      },
+      "classRestriction": "all",
+      "buff": {
+        "id": "DF",
+        "duration": 2
+      }
+    },
+    {
+      "id": "BLZ",
+      "name": "Blaze",
+      "stat": "MAG",
+      "staminaCost": 16,
+      "condition": {
+        "id": "BR",
+        "duration": 3,
+        "save": "FOR"
+      },
+      "scaling": {
+        "stamina": "HIG",
+        "damage": "HIG"
+      },
+      "classRestriction": "mage",
+      "buff": {
+        "id": "AR",
+        "duration": 2
+      }
+    },
+    {
+      "id": "TRK",
+      "name": "Throat Kick",
+      "stat": "DEX",
+      "staminaCost": 10,
+      "condition": {
+        "id": "SL",
+        "duration": 1,
+        "save": "STR"
+      },
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "MED"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "POI",
+      "name": "Poisoned Blade",
+      "stat": "DEX",
+      "staminaCost": 12,
+      "condition": {
+        "id": "PS",
+        "duration": 4,
+        "save": "FOR"
+      },
+      "scaling": {
+        "stamina": "MED",
+        "damage": "MED"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "EXE",
+      "name": "Execute",
+      "stat": "STR",
+      "staminaCost": 14,
+      "condition": {},
+      "scaling": {
+        "stamina": "MED",
+        "damage": "HIG"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "CR",
+        "duration": 1
+      }
+    },
+    {
+      "id": "BLS",
+      "name": "Blinding Sand",
+      "stat": "DEX",
+      "staminaCost": 8,
+      "condition": {
+        "id": "BL",
+        "duration": 2,
+        "save": "DEX"
+      },
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "LOW"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "EVD",
+      "name": "Evasion Boost",
+      "stat": "DEX",
+      "staminaCost": 6,
+      "condition": {},
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "LOW"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "EV",
+        "duration": 3
+      }
+    },
+    {
+      "id": "PKL",
+      "name": "Pick Lock",
+      "stat": "DEX",
+      "staminaCost": 5,
+      "condition": {},
+      "scaling": {
+        "stamina": "N/A",
+        "damage": "N/A"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "",
+        "duration": 0
+      },
+      "exploration": {
+        "handles": "LCK"
+      }
+    },
+    {
+      "id": "DSS",
+      "name": "Disarm Trap",
+      "stat": "DEX",
+      "staminaCost": 6,
+      "condition": {},
+      "scaling": {
+        "stamina": "N/A",
+        "damage": "N/A"
+      },
+      "classRestriction": "rogue",
+      "buff": {
+        "id": "",
+        "duration": 0
+      },
+      "exploration": {
+        "handles": "TRP"
+      }
+    },
+    {
+      "id": "DCN",
+      "name": "Dispel Magic",
+      "stat": "MAG",
+      "staminaCost": 10,
+      "condition": {},
+      "scaling": {
+        "stamina": "N/A",
+        "damage": "N/A"
+      },
+      "classRestriction": "mage",
+      "buff": {
+        "id": "",
+        "duration": 0
+      },
+      "exploration": {
+        "handles": "MAG"
+      }
+    },
+    {
+      "id": "SMH",
+      "name": "Smash Wall",
+      "stat": "STR",
+      "staminaCost": 0,
+      "condition": {},
+      "scaling": {
+        "stamina": "N/A",
+        "damage": "N/A"
+      },
+      "classRestriction": "warrior",
+      "buff": {
+        "id": "",
+        "duration": 0
+      },
+      "exploration": {
+        "handles": "BRW"
+      }
+    }
+  ]
+}

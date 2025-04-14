@@ -1,0 +1,1447 @@
+{
+    "monsters": [
+      {
+        "id": 1,
+        "name": "Goblin Scout",
+        "themes": [
+          "Swampy",
+          "Dark Forest"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "RAZ",
+          "STG",
+          "PNK"
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Goblin Raider",
+        "themes": [
+          "Sewer",
+          "Dark Forest"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "STG",
+          "WHR",
+          "RAZ"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Kobold Sneak",
+        "themes": [
+          "Sewer",
+          "Ancient Ruins"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "HIG",
+          "MAG": "MED",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "ICB",
+          "QCK",
+          "STG"
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Kobold Shaman",
+        "themes": [
+          "Haunted Crypt",
+          "Ancient Ruins"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "MED",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "SPR",
+          "VOM",
+          "STG",
+          "RAZ"
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Orc Grunt",
+        "themes": [
+          "Blood Catacombs",
+          "Beast Lair"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "THR",
+          "SLH",
+          "BNG",
+          "GUL"
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Orc Brute",
+        "themes": [
+          "Beast Lair",
+          "Ancient Ruins"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "BIT",
+          "SLH",
+          "CRU",
+          "SMH"
+        ]
+      },
+      {
+        "id": 7,
+        "name": "Troll",
+        "themes": [
+          "Frozen Ice Cavern",
+          "Desert Tomb"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "LOW",
+          "MAG": "LOW",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "SLH",
+          "CRU",
+          "SMH",
+          "GOR",
+          "CLA"
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Orc Warlord",
+        "themes": [
+          "Blood Catacombs",
+          "Ancient Ruins"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "QCK",
+          "RAZ",
+          "HNK",
+          "TWH",
+          "BNG"
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Lizardfolk Hunter",
+        "themes": [
+          "Swampy",
+          "Desert Tomb"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "PNK",
+          "QCK",
+          "WHR"
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Lizardfolk Shaman",
+        "themes": [
+          "Magical",
+          "Swampy"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "MED",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "BDL",
+          "DRK",
+          "WND",
+          "PSY"
+        ]
+      },
+      {
+        "id": 11,
+        "name": "Gnoll Marauder",
+        "themes": [
+          "Dark Forest",
+          "Desert Tomb"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "SHR",
+          "BIT",
+          "FUR",
+          "GOR"
+        ]
+      },
+      {
+        "id": 12,
+        "name": "Gnoll Savage",
+        "themes": [
+          "Beast Lair",
+          "Ancient Ruins"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "STG",
+          "LUN",
+          "RAZ",
+          "BIT",
+          "RUN"
+        ]
+      },
+      {
+        "id": 13,
+        "name": "Hobgoblin Soldier",
+        "themes": [
+          "Sewer",
+          "Ancient Ruins"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "IMP",
+          "SHR",
+          "WHR",
+          "STG"
+        ]
+      },
+      {
+        "id": 14,
+        "name": "Hobgoblin Captain",
+        "themes": [
+          "Blood Catacombs",
+          "Clockwork Fortress"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "HIG",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "SLH",
+          "TWH",
+          "FUR",
+          "RND",
+          "SMH"
+        ]
+      },
+      {
+        "id": 15,
+        "name": "Imp",
+        "themes": [
+          "Magical",
+          "Haunted Crypt"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "HIG",
+          "MAG": "MED",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "DRK",
+          "BDL",
+          "ECH"
+        ]
+      },
+      {
+        "id": 16,
+        "name": "Fiendish Imp",
+        "themes": [
+          "Magical",
+          "Corrupted Temple"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "MED",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "FRB",
+          "COR",
+          "ECH",
+          "QCK"
+        ]
+      },
+      {
+        "id": 17,
+        "name": "Succubus",
+        "themes": [
+          "Haunted Crypt",
+          "Cursed Library"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "HIG",
+          "FOR": "MED",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "ACS",
+          "DRK",
+          "BDL",
+          "BLT",
+          "VOL"
+        ]
+      },
+      {
+        "id": 18,
+        "name": "Banshee",
+        "themes": [
+          "Haunted Crypt",
+          "Shadow Realm"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "HIG",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "DEC",
+          "ACS",
+          "RAZ",
+          "STG",
+          "VOL"
+        ]
+      },
+      {
+        "id": 19,
+        "name": "Specter",
+        "themes": [
+          "Shadow Realm",
+          "Ancient Ruins"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "MED",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "VOL",
+          "SPR",
+          "DRK",
+          "FRB"
+        ]
+      },
+      {
+        "id": 20,
+        "name": "Wraith",
+        "themes": [
+          "Shadow Realm",
+          "Haunted Crypt"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "HIG",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "DEC",
+          "VOL",
+          "SLP",
+          "ACS",
+          "QCK"
+        ]
+      },
+      {
+        "id": 21,
+        "name": "Skeleton Warrior",
+        "themes": [
+          "Ancient Ruins",
+          "Abandoned Mine"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "MED",
+          "DEX": "LOW",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "GOR",
+          "SLH",
+          "SCR"
+        ]
+      },
+      {
+        "id": 22,
+        "name": "Skeleton Archer",
+        "themes": [
+          "Ancient Ruins",
+          "Abandoned Mine"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "STG",
+          "RAZ",
+          "PNK"
+        ]
+      },
+      {
+        "id": 23,
+        "name": "Zombie",
+        "themes": [
+          "Haunted Crypt",
+          "Abandoned Mine"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "LOW",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "GLW",
+          "LUN",
+          "GUL",
+          "HNK"
+        ]
+      },
+      {
+        "id": 24,
+        "name": "Ghoul",
+        "themes": [
+          "Haunted Crypt",
+          "Abandoned Mine"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "PNK",
+          "QCK",
+          "CRU",
+          "LUN"
+        ]
+      },
+      {
+        "id": 25,
+        "name": "Mummy",
+        "themes": [
+          "Desert Tomb",
+          "Ancient Ruins"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "LOW",
+          "MAG": "MED",
+          "FOR": "HIG",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "PSY",
+          "BDL",
+          "VOM",
+          "COR",
+          "DEC"
+        ]
+      },
+      {
+        "id": 26,
+        "name": "Lich",
+        "themes": [
+          "Magical",
+          "Celestial Tower"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "HIG",
+          "FOR": "MED",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "GAZ",
+          "ECH",
+          "SIG",
+          "PSY",
+          "SLP"
+        ]
+      },
+      {
+        "id": 27,
+        "name": "Animated Armor",
+        "themes": [
+          "Clockwork Fortress",
+          "Ancient Ruins"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "LOW",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "SLH",
+          "CLA",
+          "SMH",
+          "MPT"
+        ]
+      },
+      {
+        "id": 28,
+        "name": "Gargoyle",
+        "themes": [
+          "Ancient Ruins",
+          "Crystal Cavern"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "LOW",
+          "MAG": "MED",
+          "FOR": "HIG",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "COR",
+          "FRB",
+          "SPR",
+          "CRU",
+          "RND"
+        ]
+      },
+      {
+        "id": 29,
+        "name": "Hydra",
+        "themes": [
+          "Underwater Shrine",
+          "Swampy"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "MED",
+          "MAG": "MED",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "SLH",
+          "IMP",
+          "VOL",
+          "SIG",
+          "WHR"
+        ]
+      },
+      {
+        "id": 30,
+        "name": "Wyvern",
+        "themes": [
+          "Volcanic",
+          "Desert Tomb"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "HIG",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "MUD",
+          "CHG",
+          "TKL",
+          "LUN"
+        ]
+      },
+      {
+        "id": 31,
+        "name": "Dragon Whelp",
+        "themes": [
+          "Frozen Ice Cavern",
+          "Crystal Cavern"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "HIG",
+          "MAG": "MED",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "SLH",
+          "CHG",
+          "GOR",
+          "HNK",
+          "FRB"
+        ]
+      },
+      {
+        "id": 32,
+        "name": "Red Dragonspawn",
+        "themes": [
+          "Volcanic",
+          "Desert Tomb"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "HIG",
+          "MAG": "MED",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "ACS",
+          "FUR",
+          "FRB",
+          "WHR",
+          "ICB"
+        ]
+      },
+      {
+        "id": 33,
+        "name": "Green Dragonspawn",
+        "themes": [
+          "Frozen Ice Cavern",
+          "Underwater Shrine"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "MED",
+          "MAG": "MED",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "SIG",
+          "RUN",
+          "DEC",
+          "MPT",
+          "WHR"
+        ]
+      },
+      {
+        "id": 34,
+        "name": "Black Dragonspawn",
+        "themes": [
+          "Shadow Realm",
+          "Corrupted Temple"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "MED",
+          "MAG": "MED",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "DRK",
+          "SMH",
+          "GAZ",
+          "ACS",
+          "VPS"
+        ]
+      },
+      {
+        "id": 35,
+        "name": "Forest Ent",
+        "themes": [
+          "Dark Forest",
+          "Swampy"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "LOW",
+          "MAG": "MED",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "TWH",
+          "CLA",
+          "SCR",
+          "VOM"
+        ]
+      },
+      {
+        "id": 36,
+        "name": "Treant",
+        "themes": [
+          "Dark Forest",
+          "Swampy"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "LOW",
+          "MAG": "MED",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "MPT",
+          "FUR",
+          "VPS",
+          "DRK",
+          "CRU"
+        ]
+      },
+      {
+        "id": 37,
+        "name": "Satyr",
+        "themes": [
+          "Dark Forest",
+          "Haunted Crypt"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "RAZ",
+          "WHR",
+          "PNK"
+        ]
+      },
+      {
+        "id": 38,
+        "name": "Faun",
+        "themes": [
+          "Dark Forest",
+          "Ancient Ruins"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "QCK",
+          "PNK",
+          "RAZ"
+        ]
+      },
+      {
+        "id": 39,
+        "name": "Nymph",
+        "themes": [
+          "Magical",
+          "Dark Forest"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "HIG",
+          "FOR": "MED",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "ICB",
+          "SPR",
+          "PNK",
+          "GAZ"
+        ]
+      },
+      {
+        "id": 40,
+        "name": "Dryad",
+        "themes": [
+          "Dark Forest",
+          "Ancient Ruins"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "MED",
+          "FOR": "MED",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "DRK",
+          "SPR",
+          "DEC",
+          "GAZ"
+        ]
+      },
+      {
+        "id": 41,
+        "name": "Centaur",
+        "themes": [
+          "Dark Forest",
+          "Ancient Ruins"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "THR",
+          "SLH",
+          "QCK",
+          "GUL"
+        ]
+      },
+      {
+        "id": 42,
+        "name": "Minotaur",
+        "themes": [
+          "Ancient Ruins",
+          "Beast Lair"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "MPT",
+          "WHR",
+          "CRU",
+          "PNK",
+          "MUD"
+        ]
+      },
+      {
+        "id": 43,
+        "name": "Cyclops",
+        "themes": [
+          "Ancient Ruins",
+          "Blood Catacombs"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "LOW",
+          "MAG": "LOW",
+          "FOR": "HIG",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "CRU",
+          "GLW",
+          "CLA",
+          "RIP",
+          "IMP"
+        ]
+      },
+      {
+        "id": 44,
+        "name": "Basilisk",
+        "themes": [
+          "Desert Tomb",
+          "Dark Forest"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "GOR",
+          "WHR",
+          "RAZ",
+          "FUR"
+        ]
+      },
+      {
+        "id": 45,
+        "name": "Medusa",
+        "themes": [
+          "Haunted Crypt",
+          "Ancient Ruins"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "HIG",
+          "FOR": "MED",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "STG",
+          "ACS",
+          "VPS",
+          "BLT",
+          "SLP"
+        ]
+      },
+      {
+        "id": 46,
+        "name": "Harpy",
+        "themes": [
+          "Dark Forest",
+          "Ancient Ruins"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "PNK",
+          "RAZ",
+          "QCK"
+        ]
+      },
+      {
+        "id": 47,
+        "name": "Siren",
+        "themes": [
+          "Underwater Shrine",
+          "Magical"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "HIG",
+          "FOR": "MED",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "ICB",
+          "VPS",
+          "SIG",
+          "BDL"
+        ]
+      },
+      {
+        "id": 48,
+        "name": "Giant Spider",
+        "themes": [
+          "Abandoned Mine",
+          "Dark Forest"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "QCK",
+          "WHR",
+          "RAZ",
+          "STG"
+        ]
+      },
+      {
+        "id": 49,
+        "name": "Giant Scorpion",
+        "themes": [
+          "Desert Tomb",
+          "Abandoned Mine"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "LOW",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "SHR",
+          "RIP",
+          "TWH",
+          "BIT"
+        ]
+      },
+      {
+        "id": 50,
+        "name": "Giant Ant",
+        "themes": [
+          "Swampy",
+          "Abandoned Mine"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "WHR",
+          "STG",
+          "RAZ"
+        ]
+      },
+      {
+        "id": 51,
+        "name": "Bugbear",
+        "themes": [
+          "Blood Catacombs",
+          "Dark Forest"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "CRU",
+          "TWH",
+          "GUL",
+          "GOR"
+        ]
+      },
+      {
+        "id": 52,
+        "name": "Ogre",
+        "themes": [
+          "Beast Lair",
+          "Ancient Ruins"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "LOW",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "SLH",
+          "SMH",
+          "MUD",
+          "ROR"
+        ]
+      },
+      {
+        "id": 53,
+        "name": "Troll Brute",
+        "themes": [
+          "Swampy",
+          "Desert Tomb"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "LOW",
+          "MAG": "LOW",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "CHG",
+          "MUD",
+          "GOR",
+          "THR",
+          "FUR"
+        ]
+      },
+      {
+        "id": 54,
+        "name": "Skeleton Archer Elite",
+        "themes": [
+          "Ancient Ruins",
+          "Abandoned Mine"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "LOW",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "QCK",
+          "RAZ",
+          "PNK",
+          "STG"
+        ]
+      },
+      {
+        "id": 55,
+        "name": "Vampire",
+        "themes": [
+          "Haunted Crypt",
+          "Shadow Realm"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "MED",
+          "DEX": "MED",
+          "MAG": "HIG",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "TWH",
+          "THR",
+          "SLP",
+          "BLT",
+          "WND"
+        ]
+      },
+      {
+        "id": 56,
+        "name": "Werewolf",
+        "themes": [
+          "Dark Forest",
+          "Beast Lair"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "HIG",
+          "Stamina": "HIG"
+        },
+        "skills": [
+          "CLA",
+          "GUL",
+          "SHR",
+          "HWS",
+          "GOR"
+        ]
+      },
+      {
+        "id": 57,
+        "name": "Zombie Lord",
+        "themes": [
+          "Haunted Crypt",
+          "Abandoned Mine"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "MED",
+          "DEX": "LOW",
+          "MAG": "LOW",
+          "FOR": "HIG",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "THR",
+          "MPT",
+          "MUD",
+          "RIP",
+          "GOR"
+        ]
+      },
+      {
+        "id": 58,
+        "name": "Slime",
+        "themes": [
+          "Corrupted Temple",
+          "Sewer"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "LOW",
+          "MAG": "MED",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "DRK",
+          "EXP",
+          "FRB"
+        ]
+      },
+      {
+        "id": 59,
+        "name": "Oozeling",
+        "themes": [
+          "Corrupted Temple",
+          "Sewer"
+        ],
+        "difficulty": "LOW",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "LOW",
+          "MAG": "MED",
+          "FOR": "LOW",
+          "Stamina": "LOW"
+        },
+        "skills": [
+          "VOL",
+          "DRK",
+          "SIG"
+        ]
+      },
+      {
+        "id": 60,
+        "name": "Mimic",
+        "themes": [
+          "Ancient Ruins",
+          "Clockwork Fortress"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "MED",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "HNK",
+          "STG",
+          "TWH",
+          "RIP"
+        ]
+      },
+      {
+        "id": 61,
+        "name": "Fire Elemental",
+        "themes": [
+          "Volcanic",
+          "Magical"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "MED",
+          "DEX": "MED",
+          "MAG": "HIG",
+          "FOR": "LOW",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "TWH",
+          "MPT",
+          "THR",
+          "SMH",
+          "PNK"
+        ]
+      },
+      {
+        "id": 62,
+        "name": "Ice Elemental",
+        "themes": [
+          "Frozen Ice Cavern",
+          "Magical"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "MED",
+          "MAG": "HIG",
+          "FOR": "LOW",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "RAZ",
+          "WND",
+          "VOM",
+          "PSY",
+          "BLT"
+        ]
+      },
+      {
+        "id": 63,
+        "name": "Earth Elemental",
+        "themes": [
+          "Ancient Ruins",
+          "Clockwork Fortress"
+        ],
+        "difficulty": "HIG",
+        "stats": {
+          "STR": "HIG",
+          "DEX": "LOW",
+          "MAG": "MED",
+          "FOR": "HIG",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "RIP",
+          "BNG",
+          "HWS",
+          "WND",
+          "GAZ"
+        ]
+      },
+      {
+        "id": 64,
+        "name": "Air Elemental",
+        "themes": [
+          "Magical",
+          "Celestial Tower"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "LOW",
+          "DEX": "HIG",
+          "MAG": "MED",
+          "FOR": "LOW",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "GAZ",
+          "SIG",
+          "ACS",
+          "QCK"
+        ]
+      },
+      {
+        "id": 65,
+        "name": "Clockwork Automaton",
+        "themes": [
+          "Clockwork Fortress",
+          "Corrupted Temple"
+        ],
+        "difficulty": "MED",
+        "stats": {
+          "STR": "MED",
+          "DEX": "LOW",
+          "MAG": "LOW",
+          "FOR": "MED",
+          "Stamina": "MED"
+        },
+        "skills": [
+          "LUN",
+          "IMP",
+          "SCR",
+          "TWH"
+        ]
+      }
+    ]
+  }

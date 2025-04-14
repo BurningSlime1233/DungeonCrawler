@@ -1,0 +1,76 @@
+{
+    "items": [
+      {
+        "id": "LCK",
+        "name": "Lockpicks",
+        "effect": "Unlocks all doors and chests.",
+        "goldCost": 50
+      },
+      {
+        "id": "TRP",
+        "name": "Trap Disarm Kit",
+        "effect": "Disarms mechanical traps.",
+        "goldCost": 75
+      },
+      {
+        "id": "ARC",
+        "name": "Arcane Dissolver",
+        "effect": "Dispels magical barriers and weakens enchantments on doors or chests.",
+        "goldCost": 100
+      },
+      {
+        "id": "DMC",
+        "name": "Demolition Charge",
+        "effect": "Breaks reinforced walls or rubble blocking paths. Cane used to deal huge damage to enemies",
+        "goldCost": 150
+      },
+      {
+        "id": "FIR",
+        "name": "Fire Bomb",
+        "effect": "Deals fire damage to a single target.",
+        "goldCost": 80
+      },
+      {
+        "id": "PSN",
+        "name": "Poison Vial",
+        "effect": "Inflicts Poison on a target.",
+        "goldCost": 60
+      },
+      {
+        "id": "FLA",
+        "name": "Flash Powder",
+        "effect": "Blinds enemies in a radius for 2 turns, reducing their accuracy.",
+        "goldCost": 45
+      },
+      {
+        "id": "ICE",
+        "name": "Frost Shard",
+        "effect": "Freezes a target for 1 turn.",
+        "goldCost": 70
+      },
+      {
+        "id": "HLT",
+        "name": "Health Potion",
+        "effect": "Restores 20% HP. Basic but reliable.",
+        "goldCost": 50
+      },
+      {
+        "id": "STM",
+        "name": "Stamina Tonic",
+        "effect": "Restores 20% Stamina. Critical for extended exploration.",
+        "goldCost": 40
+      },
+      {
+        "id": "STR",
+        "name": "Strength Elixir",
+        "effect": "Grants +30% STR for 3 turns. Perfect for breaking objects or bosses.",
+        "goldCost": 90
+      },
+      {
+        "id": "SMK",
+        "name": "Smoke Bomb",
+        "effect": "Allows escape from non-boss combat. Guaranteed retreat.",
+        "goldCost": 55
+      }
+    ]
+  }

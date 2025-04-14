@@ -1,0 +1,4 @@
+read all json files in the lib folder. add a function level up that creates placeholder popup. also create fucntion called check level up that checks the Xp stored in Player character obejct. 
+
+Copy all data from the json save file into the player character object when loading a save / creating a new save and also add values for current Hp and Stamina. create a function called save. Add a button when room is starting room to exit dungeon. this increments dungeons explored by one for the save and generates a new dungeon using base seed to pass a new dungeon seed. This is also the only time data from the player character object is written into the file
+
