@@ -34,6 +34,15 @@ class GameGui {
     private boolean inCombat = false;  // Track combat state
     private JProgressBar monsterHPBar;
     private JProgressBar monsterStaminaBar;
+    private Socket multiplayerSocket;
+    private DataInputStream multiplayerInput;
+    private DataOutputStream multiplayerOutput;
+    private int opponentHp;
+    private int opponentStamina;
+    private boolean isPlayerTurn;
+    private int currentHp;
+    private int currentStamina;
+    private JPanel statsPanel;
 
     public void mainMenu() {
         if (gui == null) {
@@ -115,12 +124,77 @@ class GameGui {
 
     private void connectToPlayer(String ipAddress) {
         try {
-            Socket socket = new Socket(ipAddress, 12345); // Example port number
-            // Obtain the local IP address from the socket.
+            Socket socket = new Socket(ipAddress, 12345);
             String localIp = socket.getLocalAddress().getHostAddress();
+            
+            // Show connection success with both IPs
             JOptionPane.showMessageDialog(gui,
                     "Connected to " + ipAddress + "\nYour IP Address: " + localIp);
-            // Handle further communication with the player here
+            
+            // Initialize combat with the other player
+            inCombat = true;
+            combatPanel = new JPanel();
+            combatPanel.setLayout(new BoxLayout(combatPanel, BoxLayout.Y_AXIS));
+            combatPanel.setBackground(new Color(30, 30, 30));
+            
+            // Create combat log
+            combatLog = new JTextArea();
+            combatLog.setEditable(false);
+            combatLog.setForeground(Color.WHITE);
+            combatLog.setBackground(new Color(30, 30, 30));
+            combatLog.setLineWrap(true);
+            combatLog.setWrapStyleWord(true);
+            combatPanel.add(combatLog);
+            
+            // Add player stats
+            JPanel statsPanel = new JPanel();
+            statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
+            statsPanel.setBackground(new Color(30, 30, 30));
+            
+            try {
+                statsPanel.add(createStatLine("Your HP: " + player.getCurrentHp()));
+                statsPanel.add(createStatLine("Your Stamina: " + player.getCurrentStamina()));
+                statsPanel.add(createStatLine("Opponent HP: " + player.getCurrentHp())); // Initial opponent HP
+                statsPanel.add(createStatLine("Opponent Stamina: " + player.getCurrentStamina())); // Initial opponent stamina
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            
+            combatPanel.add(statsPanel);
+            
+            // Add skills section
+            JLabel skillsLabel = new JLabel("Your Skills:");
+            skillsLabel.setForeground(Color.WHITE);
+            skillsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            combatPanel.add(skillsLabel);
+            
+            JPanel skillsPanel = new JPanel();
+            skillsPanel.setLayout(new BoxLayout(skillsPanel, BoxLayout.Y_AXIS));
+            skillsPanel.setBackground(new Color(30, 30, 30));
+            
+            try {
+                JSONArray playerSkills = player.getSkills();
+                for (int i = 0; i < playerSkills.length(); i++) {
+                    String skillId = playerSkills.getString(i);
+                    JSONObject skill = findSkill(playerSkillsData, skillId);
+                    if (skill != null) {
+                        JButton skillButton = createSkillButton(skill, null, null);
+                        skillButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        skillsPanel.add(skillButton);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            
+            combatPanel.add(skillsPanel);
+            
+            // Add combat panel to main window
+            currentRoomPanel.removeAll();
+            currentRoomPanel.add(combatPanel);
+            currentRoomPanel.revalidate();
+            currentRoomPanel.repaint();
+            
         } catch (IOException e) {
             JOptionPane.showMessageDialog(gui, "Connection failed: " + e.getMessage());
             e.printStackTrace();
@@ -256,7 +330,9 @@ class GameGui {
             // Common stats
             characterData.put("Level", 1);
             characterData.put("Exp", 0);
-            characterData.put("HP", 100);
+            int baseHp = characterData.getInt("Toughness") * 10;
+            characterData.put("MaxHP", baseHp);
+            characterData.put("CurrentHP", baseHp);
             characterData.put("MaxStamina", 100);
             characterData.put("CurrentStamina", 100);
             characterData.put("Gold", 50);
@@ -353,8 +429,9 @@ class GameGui {
             statsText += "<b>Class:</b> " + characterData.getString("Class") + "<br>";
             statsText += "<b>Level:</b> " + characterData.getInt("Level") + "<br>";
             statsText += "<b>Exp:</b> " + characterData.getInt("Exp") + "<br>";
-            statsText += "<b>HP:</b> " + characterData.getInt("HP") + "<br>";
-            statsText += "<b>Stamina:</b> " + characterData.getInt("Stamina") + "<br>";
+            statsText += "<b>Current HP:</b> " + characterData.getInt("CurrentHP") + "<br>";
+            statsText += "<b>Max HP:</b> " + characterData.getInt("MaxHP") + "<br>";
+            statsText += "<b>Current Stamina:</b> " + characterData.getInt("CurrentStamina") + "/" + characterData.getInt("MaxStamina") + "<br>";
             statsText += "<b>Gold:</b> " + characterData.getInt("Gold") + "<br>";
             statsText += "<b>Strength:</b> " + characterData.getInt("Strength") + "<br>";
             statsText += "<b>Dexterity:</b> " + characterData.getInt("Dexterity") + "<br>";
@@ -413,7 +490,7 @@ class GameGui {
             
             // Calculate monster HP based on FOR stat and level
             int monsterMaxHP = (int) (100 * playerLevel * (monsterFor / 10.0) * difficultyMultiplier);
-            monsterMaxStamina = calculateMonsterStamina(monster.getStamina(), playerLevel, difficultyMultiplier);
+            monsterMaxStamina = calculateMonsterStamina(monster.getMaxStamina(), playerLevel, difficultyMultiplier);
             monsterCurrentHP = monsterMaxHP;
             monsterCurrentStamina = monsterMaxStamina;
             monsterDamageReduction = Math.max(Math.max(monsterStr, monsterDex), Math.max(monsterMag, monsterFor));
@@ -472,9 +549,33 @@ class GameGui {
             monsterStaminaBar.setAlignmentX(Component.CENTER_ALIGNMENT);
             combatPanel.add(monsterStaminaBar);
 
-            // Add combat log with proper sizing and scrolling
+            // Create main combat panel with BorderLayout
+            combatPanel = new JPanel(new BorderLayout());
+            combatPanel.setBackground(new Color(30, 30, 30));
+
+            // Create top panel for monster info
+            JPanel monsterPanel = new JPanel();
+            monsterPanel.setLayout(new BoxLayout(monsterPanel, BoxLayout.Y_AXIS));
+            monsterPanel.setBackground(new Color(30, 30, 30));
+            monsterPanel.setOpaque(true);
+            monsterPanel.setVisible(true);
+            
+            // Add monster name label
+            JLabel monsterNameLabel = new JLabel(monster.getName());
+            monsterNameLabel.setForeground(Color.WHITE);
+            monsterNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            monsterPanel.add(monsterNameLabel);
+            
+            monsterPanel.add(monsterHPBar);
+            monsterPanel.add(monsterStaminaBar);
+            combatPanel.add(monsterPanel, BorderLayout.NORTH);
+
+            // Create center panel for combat log
             JPanel logPanel = new JPanel(new BorderLayout());
             logPanel.setBackground(new Color(30, 30, 30));
+            logPanel.setOpaque(true);
+            logPanel.setVisible(true);
+            
             combatLog = new JTextArea(10, 30);
             combatLog.setEditable(false);
             combatLog.setBackground(new Color(30, 30, 30));
@@ -485,20 +586,83 @@ class GameGui {
             logScroll.setPreferredSize(new Dimension(400, 200));
             logScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
             logPanel.add(logScroll, BorderLayout.CENTER);
-            combatPanel.add(logPanel);
+            combatPanel.add(logPanel, BorderLayout.CENTER);
 
-            combatPanel.add(new JSeparator());
+            // Create bottom panel for skills and items
+            JPanel bottomPanel = new JPanel();
+            bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+            bottomPanel.setBackground(new Color(30, 30, 30));
+            bottomPanel.setOpaque(true);
+            bottomPanel.setVisible(true);
+
+            // Add player stats section
+            JPanel playerStatsPanel = new JPanel();
+            playerStatsPanel.setLayout(new BoxLayout(playerStatsPanel, BoxLayout.Y_AXIS));
+            playerStatsPanel.setBackground(new Color(30, 30, 30));
+            playerStatsPanel.setOpaque(true);
+            playerStatsPanel.setVisible(true);
+            
+            try {
+                JLabel playerNameLabel = new JLabel("Player: " + player.getName());
+                playerNameLabel.setForeground(Color.WHITE);
+                playerStatsPanel.add(playerNameLabel);
+                
+                JLabel playerHPLabel = new JLabel("HP: " + player.getCurrentHp() + "/" + player.getMaxHp());
+                playerHPLabel.setForeground(Color.WHITE);
+                playerStatsPanel.add(playerHPLabel);
+                
+                JLabel playerStaminaLabel = new JLabel("Stamina: " + player.getCurrentStamina() + "/" + player.getMaxStamina());
+                playerStaminaLabel.setForeground(Color.WHITE);
+                playerStatsPanel.add(playerStaminaLabel);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            
+            bottomPanel.add(playerStatsPanel);
+            bottomPanel.add(new JSeparator());
+
+            // Add skills section
+            JPanel skillsPanel = new JPanel();
+            skillsPanel.setLayout(new BoxLayout(skillsPanel, BoxLayout.Y_AXIS));
+            skillsPanel.setBackground(new Color(30, 30, 30));
+            skillsPanel.setOpaque(true);
+            skillsPanel.setVisible(true);
+            
+            JLabel skillsLabel = new JLabel("Your Skills:");
+            skillsLabel.setForeground(Color.WHITE);
+            skillsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            skillsPanel.add(skillsLabel);
+            
+            try {
+                JSONArray playerSkills = player.getSkills();
+                for (int i = 0; i < playerSkills.length(); i++) {
+                    String skillId = playerSkills.getString(i);
+                    JSONObject skill = findSkill(playerSkillsData, skillId);
+                    if (skill != null) {
+                        JButton skillButton = createSkillButton(skill, monsterHPBar, monsterStaminaBar);
+                        skillButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        skillsPanel.add(skillButton);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            bottomPanel.add(skillsPanel);
+
+            // Add separator
+            bottomPanel.add(new JSeparator());
 
             // Add items section
             JLabel itemsLabel = new JLabel("Use Items:");
             itemsLabel.setForeground(Color.WHITE);
             itemsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            combatPanel.add(itemsLabel);
-
-            // Create a panel for item buttons
+            bottomPanel.add(itemsLabel);
+            
             JPanel itemsPanel = new JPanel();
             itemsPanel.setLayout(new BoxLayout(itemsPanel, BoxLayout.Y_AXIS));
             itemsPanel.setBackground(new Color(30, 30, 30));
+            itemsPanel.setOpaque(true);
+            itemsPanel.setVisible(true);
 
             if (player.getCharacterData().has("Inventory")) {
                 JSONArray inventory = player.getCharacterData().getJSONArray("Inventory");
@@ -521,33 +685,12 @@ class GameGui {
                     itemsPanel.add(itemButton);
                 }
             }
-            combatPanel.add(itemsPanel);
+            bottomPanel.add(itemsPanel);
 
-            // Player skills
-            JLabel skillsLabel = new JLabel("Your Skills:");
-            skillsLabel.setForeground(Color.WHITE);
-            skillsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            combatPanel.add(skillsLabel);
-
-            // Create a panel for skill buttons
-            JPanel skillsPanel = new JPanel();
-            skillsPanel.setLayout(new BoxLayout(skillsPanel, BoxLayout.Y_AXIS));
-            skillsPanel.setBackground(new Color(30, 30, 30));
-
-            JSONArray playerSkills = player.getSkills();
-            for (int i = 0; i < playerSkills.length(); i++) {
-                String skillId = playerSkills.getString(i);
-                JSONObject skill = findSkill(playerSkillsData, skillId);
-                if (skill != null && !skill.getJSONObject("scaling").getString("damage").equals("N/A")) {
-                    JButton skillButton = createSkillButton(skill, monsterHPBar, monsterStaminaBar);
-                    skillButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    skillsPanel.add(skillButton);
-                }
-            }
-            combatPanel.add(skillsPanel);
-
-            // Add padding and ensure proper layout
-            combatPanel.add(Box.createVerticalGlue());
+            combatPanel.add(bottomPanel, BorderLayout.SOUTH);
+            
+            // Ensure all panels are visible
+            combatPanel.setVisible(true);
             currentRoomPanel.add(combatPanel);
             currentRoomPanel.revalidate();
             currentRoomPanel.repaint();
@@ -670,7 +813,8 @@ class GameGui {
                 int currentStamina = player.getCurrentStamina();
                 
                 if (currentStamina >= staminaCost) {
-                    player.getCharacterData().put("Stamina", currentStamina - staminaCost);
+                    player.getCharacterData().put("CurrentStamina", currentStamina - staminaCost);
+                    updateCombatStats();
                     
                     // Calculate damage based on the skill's stat
                     String stat = skill.getString("stat");
@@ -795,7 +939,7 @@ class GameGui {
                 int finalDamage = Math.max(0, baseDamage - playerDR);
                 
                 int newHP = player.getCurrentHp() - finalDamage;
-                player.getCharacterData().put("HP", newHP);
+                player.getCharacterData().put("CurrentHP", newHP);
                 
                 // Add combat log entry
                 combatLog.append("The monster used " + skill.getString("name") + " and dealt " + finalDamage + " damage!\n");
@@ -808,6 +952,17 @@ class GameGui {
                     combatLog.append("You were defeated!\n");
                     JOptionPane.showMessageDialog(gui, "You were defeated!");
                     endCombat(false);
+                    
+                    // Delete the save file
+                    if (loadedSave != null && loadedSave.exists()) {
+                        if (loadedSave.delete()) {
+                            JOptionPane.showMessageDialog(gui, "Your character has been deleted due to defeat.");
+                        } else {
+                            JOptionPane.showMessageDialog(gui, "Failed to delete save file.");
+                        }
+                    }
+                    
+                    // Return to main menu
                     mainMenu();
                     return;
                 }
@@ -943,8 +1098,10 @@ class GameGui {
     private void saveGame() {
         try {
             // Update HP and Stamina from current values
-            player.getCharacterData().put("HP", player.getCurrentHp());
-            player.getCharacterData().put("Stamina", player.getCurrentStamina());
+            player.getCharacterData().put("MaxHP", player.getMaxHp());
+            player.getCharacterData().put("CurrentHP", player.getCurrentHp());
+            player.getCharacterData().put("MaxStamina", player.getMaxStamina());
+            player.getCharacterData().put("CurrentStamina", player.getCurrentStamina());
 
             // Increment dungeons completed
             int dungeonsCompleted = player.getCharacterData().getInt("Dungeons Completed");
@@ -954,9 +1111,11 @@ class GameGui {
             try (FileWriter fileWriter = new FileWriter(loadedSave)) {
                 fileWriter.write(player.getCharacterData().toString(4));
                 fileWriter.flush();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(gui, "Failed to save game: " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (IOException | JSONException e) {
-            JOptionPane.showMessageDialog(gui, "Failed to save game: " + e.getMessage());
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -1292,37 +1451,38 @@ class GameGui {
     private JPanel buildStatsPanel() {
         JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
-        statsPanel.setBackground(new Color(50, 50, 50));
+        statsPanel.setBackground(new Color(30, 30, 30));
+        statsPanel.setOpaque(true);
+        statsPanel.setVisible(true);
         statsPanel.setPreferredSize(new Dimension(250, 0)); // Fixed width
-
-        // Add a title.
-        JLabel titleLabel = new JLabel("Player Stats");
-        titleLabel.setForeground(Color.WHITE);
-        statsPanel.add(titleLabel);
-        statsPanel.add(Box.createVerticalStrut(10));
-
-        // Retrieve stats from the player's JSON object.
+        
         try {
             JSONObject characterData = player.getCharacterData();
-            statsPanel.add(createStatLine("Name: " + characterData.getString("Name")));
-            statsPanel.add(createStatLine("Class: " + characterData.getString("Class")));
-            statsPanel.add(createStatLine("Level: " + characterData.getInt("Level")));
-            statsPanel.add(createStatLine("Exp: " + characterData.getInt("Exp")));
-            statsPanel.add(createStatLine("HP: " + characterData.getInt("HP")));
-            statsPanel.add(createStatLine("Stamina: " + characterData.getInt("Stamina")));
-            statsPanel.add(createStatLine("Gold: " + characterData.getInt("Gold")));
-            statsPanel.add(createStatLine("Strength: " + characterData.getInt("Strength")));
-            statsPanel.add(createStatLine("Dexterity: " + characterData.getInt("Dexterity")));
-            statsPanel.add(createStatLine("Toughness: " + characterData.getInt("Toughness")));
-            statsPanel.add(createStatLine("Magic: " + characterData.getInt("Magic")));
-            statsPanel.add(createStatLine("Dungeons Completed: " + characterData.getInt("Dungeons Completed")));
-
-            // Add inventory section
-            statsPanel.add(Box.createVerticalStrut(20));
-            JLabel inventoryLabel = new JLabel("Inventory:");
-            inventoryLabel.setForeground(Color.WHITE);
-            statsPanel.add(inventoryLabel);
-
+            
+            // Player Basic Info
+            statsPanel.add(createStatLine("<html><b>Name:</b> " + characterData.getString("Name") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Class:</b> " + characterData.getString("Class") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Level:</b> " + characterData.getInt("Level") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Experience:</b> " + characterData.getInt("Exp") + "</html>"));
+            
+            // HP and Stamina
+            statsPanel.add(createStatLine("<html><b>HP:</b> " + characterData.getInt("CurrentHP") + "/" + characterData.getInt("MaxHP") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Stamina:</b> " + characterData.getInt("CurrentStamina") + "/" + characterData.getInt("MaxStamina") + "</html>"));
+            
+            // Stats
+            statsPanel.add(createStatLine("<html><b>Strength:</b> " + characterData.getInt("Strength") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Dexterity:</b> " + characterData.getInt("Dexterity") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Magic:</b> " + characterData.getInt("Magic") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Toughness:</b> " + characterData.getInt("Toughness") + "</html>"));
+            
+            // Gold
+            statsPanel.add(createStatLine("<html><b>Gold:</b> " + characterData.getInt("Gold") + "</html>"));
+            
+            // Add spacing
+            statsPanel.add(Box.createVerticalStrut(10));
+            
+            // Add Inventory section
+            statsPanel.add(createStatLine("<html><b>Inventory:</b></html>"));
             if (characterData.has("Inventory")) {
                 JSONArray inventory = characterData.getJSONArray("Inventory");
                 Map<String, Integer> itemCounts = new HashMap<>();
@@ -1332,112 +1492,57 @@ class GameGui {
                     String itemId = inventory.getString(i);
                     itemCounts.put(itemId, itemCounts.getOrDefault(itemId, 0) + 1);
                 }
-
+                
                 // Display items with counts
                 for (Map.Entry<String, Integer> entry : itemCounts.entrySet()) {
                     String itemId = entry.getKey();
                     int count = entry.getValue();
                     String itemName = getItemName(itemId);
-                    statsPanel.add(createStatLine(itemName + " (" + count + ")"));
+                    statsPanel.add(createStatLine("<html>&nbsp;&nbsp;" + itemName + " (" + count + ")</html>"));
                 }
             }
-
-            // Add skills section
-            statsPanel.add(Box.createVerticalStrut(20));
-            JLabel skillsLabel = new JLabel("Skills:");
-            skillsLabel.setForeground(Color.WHITE);
-            statsPanel.add(skillsLabel);
-
+            
+            // Add Skills section
+            statsPanel.add(Box.createVerticalStrut(10));
+            statsPanel.add(createStatLine("<html><b>Skills:</b></html>"));
             if (characterData.has("Skills")) {
                 JSONArray skills = characterData.getJSONArray("Skills");
                 for (int i = 0; i < skills.length(); i++) {
                     String skillId = skills.getString(i);
                     String skillName = getSkillName(skillId);
-                    statsPanel.add(createStatLine(skillName));
+                    statsPanel.add(createStatLine("<html>&nbsp;&nbsp;" + skillName + "</html>"));
                 }
             }
-
-            // Add consumables section
-            statsPanel.add(Box.createVerticalStrut(20));
-            JLabel consumablesLabel = new JLabel("Use Items:");
-            consumablesLabel.setForeground(Color.WHITE);
-            statsPanel.add(consumablesLabel);
-
-            if (characterData.has("Inventory")) {
-                JSONArray inventory = characterData.getJSONArray("Inventory");
-                
-                // Count health potions and stamina tonics
-                int healthPots = 0;
-                int staminaPots = 0;
-                for (int i = 0; i < inventory.length(); i++) {
-                    String itemId = inventory.getString(i);
-                    if ("HLT".equals(itemId))
-                        healthPots++;
-                    if ("STM".equals(itemId))
-                        staminaPots++;
-                }
-
-                // Add health potion button if available
-                if (healthPots > 0) {
-                    JButton healthButton = new JButton("Health Potion (" + healthPots + ")");
-                    healthButton.addActionListener(e -> {
-                        try {
-                            // Remove one potion
-                            for (int i = 0; i < inventory.length(); i++) {
-                                if ("HLT".equals(inventory.getString(i))) {
-                                    inventory.remove(i);
-                                    break;
-                                }
-                            }
-
-                            // Restore 20% HP
-                            int maxHP = characterData.getInt("HP");
-                            int currentHP = characterData.getInt("HP");
-                            int healAmount = (int) (maxHP * 0.2);
-                            characterData.put("HP", Math.min(maxHP, currentHP + healAmount));
-
-                            // Refresh stats panel
-                            refreshStatsPanel();
-                            JOptionPane.showMessageDialog(gui, "Restored " + healAmount + " HP!");
-                        } catch (JSONException ex) {
-                            ex.printStackTrace();
+            
+            // Add Stamina Tonic button if in combat
+            if (inCombat) {
+                statsPanel.add(Box.createVerticalStrut(10));
+                JButton staminaTonicButton = new JButton("Use Stamina Tonic");
+                staminaTonicButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+                staminaTonicButton.addActionListener(e -> {
+                    try {
+                        if (characterData.getInt("CurrentStamina") < characterData.getInt("MaxStamina")) {
+                            characterData.put("CurrentStamina", characterData.getInt("MaxStamina"));
+                            updateCombatStats();
+                            combatLog.append("You restored your stamina to full!\n");
+                        } else {
+                            combatLog.append("Your stamina is already full!\n");
                         }
-                    });
-                    statsPanel.add(healthButton);
-                }
-
-                // Add stamina tonic button if available
-                if (staminaPots > 0) {
-                    JButton staminaButton = new JButton("Stamina Tonic (" + staminaPots + ")");
-                    staminaButton.addActionListener(e -> {
-                        try {
-                            // Remove one tonic
-                            for (int i = 0; i < inventory.length(); i++) {
-                                if ("STM".equals(inventory.getString(i))) {
-                                    inventory.remove(i);
-                                    break;
-                                }
-                            }
-
-                            // Restore 20% Stamina
-                            int maxStamina = characterData.getInt("Stamina");
-                            int currentStamina = characterData.getInt("Stamina");
-                            int restoreAmount = (int) (maxStamina * 0.2);
-                            characterData.put("Stamina", Math.min(maxStamina, currentStamina + restoreAmount));
-
-                            // Refresh stats panel
-                            refreshStatsPanel();
-                            JOptionPane.showMessageDialog(gui, "Restored " + restoreAmount + " Stamina!");
-                        } catch (JSONException ex) {
-                            ex.printStackTrace();
-                        }
-                    });
-                    statsPanel.add(staminaButton);
-                }
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
+                });
+                statsPanel.add(staminaTonicButton);
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            
+            // Add padding at the bottom
+            statsPanel.add(Box.createVerticalGlue());
+            
+        } catch (JSONException e) {
+            e.printStackTrace();
+            statsPanel.add(createStatLine("<html><b>Error loading stats:</b> " + e.getMessage() + "</html>"));
         }
+        
         return statsPanel;
     }
 
@@ -1477,8 +1582,16 @@ class GameGui {
 
     private void refreshStatsPanel() {
         try {
-            // Instead of removing and recreating the panel, just update the existing one
+            // Get the stats panel from the WEST position of the BorderLayout
             JPanel statsPanel = (JPanel) gui.getContentPane().getComponent(0);
+            if (statsPanel == null) {
+                // If not found, create a new one
+                statsPanel = buildStatsPanel();
+                statsPanel.setPreferredSize(new Dimension(250, 0));
+                gui.add(statsPanel, BorderLayout.WEST);
+            }
+            
+            // Remove all components from the stats panel
             statsPanel.removeAll();
             
             // Rebuild the stats panel content
@@ -1486,8 +1599,9 @@ class GameGui {
             statsPanel.add(createStatLine("Class: " + player.getCharacterData().getString("Class")));
             statsPanel.add(createStatLine("Level: " + player.getCharacterData().getInt("Level")));
             statsPanel.add(createStatLine("Exp: " + player.getCharacterData().getInt("Exp")));
-            statsPanel.add(createStatLine("HP: " + player.getCharacterData().getInt("HP")));
-            statsPanel.add(createStatLine("Stamina: " + player.getCharacterData().getInt("Stamina")));
+            statsPanel.add(createStatLine("MaxHP: " + player.getCharacterData().getInt("MaxHP")));
+            statsPanel.add(createStatLine("Current HP: " + player.getCharacterData().getInt("CurrentHP")));
+            statsPanel.add(createStatLine("Stamina: " + player.getCharacterData().getInt("CurrentStamina")));
             statsPanel.add(createStatLine("Gold: " + player.getCharacterData().getInt("Gold")));
             statsPanel.add(createStatLine("Strength: " + player.getCharacterData().getInt("Strength")));
             statsPanel.add(createStatLine("Dexterity: " + player.getCharacterData().getInt("Dexterity")));
@@ -1527,10 +1641,10 @@ class GameGui {
                             }
                             
                             // Restore 20% HP
-                            int maxHP = player.getCharacterData().getInt("HP");
-                            int currentHP = player.getCharacterData().getInt("HP");
+                            int maxHP = player.getCharacterData().getInt("MaxHP");
+                            int currentHP = player.getCharacterData().getInt("CurrentHP");
                             int healAmount = (int)(maxHP * 0.2);
-                            player.getCharacterData().put("HP", Math.min(maxHP, currentHP + healAmount));
+                            player.getCharacterData().put("CurrentHP", Math.min(maxHP, currentHP + healAmount));
                             
                             // Refresh stats panel
                             refreshStatsPanel();
@@ -1544,31 +1658,21 @@ class GameGui {
                 
                 // Add stamina tonic button if available
                 if (staminaPots > 0) {
-                    JButton staminaButton = new JButton("Stamina Tonic (" + staminaPots + ")");
-                    staminaButton.addActionListener(e -> {
+                    JButton staminaTonicButton = new JButton("Use Stamina Tonic");
+                    staminaTonicButton.addActionListener(e -> {
                         try {
-                            // Remove one tonic
-                            for (int i = 0; i < inventory.length(); i++) {
-                                if ("STM".equals(inventory.getString(i))) {
-                                    inventory.remove(i);
-                                    break;
-                                }
+                            if (getCurrentStamina() < player.getMaxStamina()) {
+                                setCurrentStamina(player.getMaxStamina());
+                                updateCombatStats();
+                                combatLog.append("You restored your stamina to full!\n");
+                            } else {
+                                combatLog.append("Your stamina is already full!\n");
                             }
-                            
-                            // Restore 20% Stamina
-                            int maxStamina = player.getCharacterData().getInt("Stamina");
-                            int currentStamina = player.getCharacterData().getInt("Stamina");
-                            int restoreAmount = (int)(maxStamina * 0.2);
-                            player.getCharacterData().put("Stamina", Math.min(maxStamina, currentStamina + restoreAmount));
-                            
-                            // Refresh stats panel
-                            refreshStatsPanel();
-                            JOptionPane.showMessageDialog(gui, "Restored " + restoreAmount + " Stamina!");
                         } catch (JSONException ex) {
                             ex.printStackTrace();
                         }
                     });
-                    statsPanel.add(staminaButton);
+                    statsPanel.add(staminaTonicButton);
                 }
             }
             
@@ -1583,6 +1687,7 @@ class GameGui {
 
     private JLabel createStatLine(String text) {
         JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.PLAIN, 14));
         label.setForeground(Color.WHITE);
         return label;
     }
@@ -1639,38 +1744,219 @@ class GameGui {
         g.mainMenu();
     }
 
+    private int convertStatTextToValue(String statText) {
+        switch (statText.toUpperCase()) {
+            case "LOW":
+                return 5;
+            case "MED":
+                return 10;
+            case "HIG":
+                return 15;
+            default:
+                try {
+                    return Integer.parseInt(statText);
+                } catch (NumberFormatException e) {
+                    return 10; // Default value if parsing fails
+                }
+        }
+    }
+
     private int calculateMonsterStat(String statValue, int playerLevel, double difficultyMultiplier) {
         try {
-            // Parse the stat value which could be a number or a formula
-            if (statValue.matches("\\d+")) {
-                return (int) (Integer.parseInt(statValue) * playerLevel * difficultyMultiplier);
-            } else if (statValue.matches("\\d+d\\d+")) {
+            // First try to convert text values
+            int baseValue = convertStatTextToValue(statValue);
+            
+            // If it's a dice notation, roll the dice
+            if (statValue.matches("\\d+d\\d+")) {
                 String[] parts = statValue.split("d");
                 int numDice = Integer.parseInt(parts[0]);
                 int diceSides = Integer.parseInt(parts[1]);
                 int total = 0;
                 for (int i = 0; i < numDice; i++) {
-                    total += new Random().nextInt(diceSides) + 1;
+                    total += (int)(Math.random() * diceSides) + 1;
                 }
-                return (int) (total * playerLevel * difficultyMultiplier);
+                baseValue = total;
             }
+            
+            return (int) (baseValue * playerLevel * difficultyMultiplier);
         } catch (Exception e) {
             e.printStackTrace();
+            return (int) (10 * playerLevel * difficultyMultiplier); // Default value if something goes wrong
         }
-        // Default fallback
-        return (int) (7 * playerLevel * difficultyMultiplier);
     }
 
-    private int calculateMonsterStamina(String staminaValue, int playerLevel, double difficultyMultiplier) {
+    private int calculateMonsterStamina(int staminaValue, int playerLevel, double difficultyMultiplier) {
+        // Since staminaValue is an int, we don't need to parse it
         try {
-            if (staminaValue.matches("\\d+")) {
-                return (int) (Integer.parseInt(staminaValue) * playerLevel * difficultyMultiplier);
+            return (int) (staminaValue * playerLevel * difficultyMultiplier);
+        } catch (Exception e) {
+            // Default fallback
+            return 50 * playerLevel;
+        }
+    }
+
+    private void initializeMultiplayerCombat(Socket socket) {
+        try {
+            multiplayerSocket = socket;
+            multiplayerInput = new DataInputStream(socket.getInputStream());
+            multiplayerOutput = new DataOutputStream(socket.getOutputStream());
+            
+            // Send initial stats to opponent
+            try {
+                multiplayerOutput.writeInt(player.getCurrentHp());
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+            try {
+                multiplayerOutput.writeInt(player.getCurrentStamina());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            multiplayerOutput.flush();
+            
+            // Receive opponent's initial stats
+            opponentHp = multiplayerInput.readInt();
+            opponentStamina = multiplayerInput.readInt();
+            
+            // Randomly decide who goes first
+            isPlayerTurn = Math.random() < 0.5;
+            if (isPlayerTurn) {
+                combatLog.append("You go first!\n");
+            } else {
+                combatLog.append("Opponent goes first!\n");
+                waitForOpponentMove();
+            }
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(gui, "Error initializing multiplayer combat");
+        }
+    }
+
+    private void waitForOpponentMove() {
+        new Thread(() -> {
+            try {
+                int skillId = multiplayerInput.readInt();
+                int damage = multiplayerInput.readInt();
+                int staminaCost = multiplayerInput.readInt();
+                
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        JSONObject skill = findSkill(playerSkillsData, String.valueOf(skillId));
+                        if (skill != null) {
+                            combatLog.append("Opponent used " + skill.getString("name") + "!\n");
+                            combatLog.append("You took " + damage + " damage!\n");
+                            
+                            try {
+                                int currentHp = player.getCurrentHp();
+                                player.setCurrentHp(currentHp - damage);
+                                updateCombatStats();
+                                
+                                if (currentHp - damage <= 0) {
+                                    endMultiplayerCombat(false);
+                                } else {
+                                    isPlayerTurn = true;
+                                    combatLog.append("Your turn!\n");
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                combatLog.append("Error updating health!\n");
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(gui, "Connection lost");
+                    endMultiplayerCombat(false);
+                });
+            }
+        }).start();
+    }
+
+    private void sendMoveToOpponent(int skillId, int damage, int staminaCost) {
+        try {
+            multiplayerOutput.writeInt(skillId);
+            multiplayerOutput.writeInt(damage);
+            multiplayerOutput.writeInt(staminaCost);
+            multiplayerOutput.flush();
+            
+            opponentHp -= damage;
+            opponentStamina -= staminaCost;
+            updateCombatStats();
+            
+            if (opponentHp <= 0) {
+                endMultiplayerCombat(true);
+            } else {
+                isPlayerTurn = false;
+                combatLog.append("Opponent's turn!\n");
+                waitForOpponentMove();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(gui, "Error sending move to opponent");
+        }
+    }
+
+    private void endMultiplayerCombat(boolean won) {
+        try {
+            multiplayerSocket.close();
+            multiplayerInput.close();
+            multiplayerOutput.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        inCombat = false;
+        if (won) {
+            combatLog.append("You won the battle!\n");
+            JOptionPane.showMessageDialog(gui, "Victory! You defeated your opponent!");
+        } else {
+            combatLog.append("You were defeated!\n");
+            JOptionPane.showMessageDialog(gui, "Defeat! Your opponent was victorious!");
+        }
+        
+        // Return to main menu
+        mainMenu();
+    }
+
+    private void updateCombatStats() {
+        try {
+            if (statsPanel == null) {
+                statsPanel = new JPanel();
+                statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
+                statsPanel.setBackground(new Color(30, 30, 30));
+                combatPanel.add(statsPanel);
+            }
+            statsPanel.removeAll();
+            statsPanel.add(createStatLine("Your HP: " + player.getCurrentHp()));
+            statsPanel.add(createStatLine("Your Stamina: " + player.getCurrentStamina()));
+            statsPanel.add(createStatLine("Opponent HP: " + opponentHp));
+            statsPanel.add(createStatLine("Opponent Stamina: " + opponentStamina));
+            statsPanel.revalidate();
+            statsPanel.repaint();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // Default fallback
-        return 50 * playerLevel;
+    }
+
+    public void setCurrentHp(int hp) {
+        this.currentHp = hp;
+    }
+
+    public int getCurrentHp() {
+        return currentHp;
+    }
+
+    public void setCurrentStamina(int stamina) {
+        this.currentStamina = stamina;
+    }
+
+    public int getCurrentStamina() {
+        return currentStamina;
     }
 }
 
@@ -2160,11 +2446,12 @@ public class PlayerCharacter {
         characterData.put("Magic", characterData.getInt("Magic") + 1);
         characterData.put("Toughness", characterData.getInt("Toughness") + 1);
 
-        // Recalculate HP based on new Toughness and current Level.
+        // Recalculate HP based on new Toughness and current Level
         int toughness = characterData.getInt("Toughness");
         int level = characterData.getInt("Level");
-        int newHp = level * toughness / 10 * 100;
-        characterData.put("HP", newHp);
+        int newMaxHp = level * toughness / 10 * 100;
+        characterData.put("MaxHP", newMaxHp);
+        characterData.put("CurrentHP", newMaxHp); // Heal to full when stats increase
     }
 
     private void loadCharacterData(File jsonFile) throws IOException, JSONException {
@@ -2184,7 +2471,7 @@ public class PlayerCharacter {
         characterData = new JSONObject(sb.toString());
 
         // Validate required fields
-        String[] requiredFields = { "Name", "Class", "Level", "HP", "Stamina", "Gold" };
+        String[] requiredFields = { "Name", "Class", "Level", "CurrentHP", "MaxHP", "CurrentStamina", "MaxStamina", "Gold" };
         for (String field : requiredFields) {
             if (!characterData.has(field)) {
                 throw new JSONException("Missing required field: " + field);
@@ -2219,7 +2506,15 @@ public class PlayerCharacter {
     }
 
     public int getCurrentHp() throws JSONException {
-        return characterData.getInt("HP");
+        return characterData.getInt("CurrentHP");
+    }
+
+    public int getMaxHp() throws JSONException {
+        return characterData.getInt("MaxHP");
+    }
+
+    public void setCurrentHp(int value) throws JSONException {
+        characterData.put("CurrentHP", Math.min(value, getMaxHp()));
     }
 
     public int getCurrentStamina() throws JSONException {
@@ -2267,10 +2562,11 @@ public class PlayerCharacter {
     }
 
     public void levelUp() throws JSONException {
-        // Existing level-up calculations.
+        // Calculate new max HP based on toughness
         int toughness = characterData.getInt("Toughness");
-        int newHp = getLevel() * toughness / 10 * 100;
-        characterData.put("HP", newHp);
+        int newMaxHp = (getLevel() + 1) * toughness / 10 * 100;
+        characterData.put("MaxHP", newMaxHp);
+        characterData.put("CurrentHP", newMaxHp); // Heal to full on level up
 
         // Increase max stamina by 100 per level (base level-up bonus)
         int newMaxStamina = getMaxStamina() + 100;
@@ -2442,8 +2738,26 @@ class Monster {
     private String dex;
     private String mag;
     private String fort;
-    private String stamina;
+    private int maxStamina;
+    private int currentStamina;
     private List<String> skillIds;
+
+    private int convertStaminaTextToValue(String staminaText) {
+        switch (staminaText.toUpperCase()) {
+            case "LOW":
+                return 50;
+            case "MED":
+                return 100;
+            case "HIG":
+                return 150;
+            default:
+                try {
+                    return Integer.parseInt(staminaText);
+                } catch (NumberFormatException e) {
+                    return 100; // Default value if parsing fails
+                }
+        }
+    }
 
     public Monster(JSONObject json) {
         try {
@@ -2460,7 +2774,12 @@ class Monster {
             this.dex = stats.getString("DEX");
             this.mag = stats.getString("MAG");
             this.fort = stats.getString("FOR");
-            this.stamina = stats.getString("Stamina");
+            
+            // Update stamina initialization to use the conversion method
+            String staminaStr = stats.optString("CurrentStamina", "MED");
+            this.maxStamina = convertStaminaTextToValue(staminaStr);
+            this.currentStamina = this.maxStamina;
+            
             this.skillIds = new ArrayList<>();
             String skillsStr = json.optString("skills", "").trim();
             if (!skillsStr.isEmpty()) {
@@ -2471,7 +2790,6 @@ class Monster {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public int getId() {
@@ -2506,8 +2824,12 @@ class Monster {
         return fort;
     }
 
-    public String getStamina() {
-        return stamina;
+    public int getCurrentStamina() {
+        return currentStamina;
+    }
+
+    public int getMaxStamina() {
+        return maxStamina;
     }
 
     public List<String> getSkillIds() {
