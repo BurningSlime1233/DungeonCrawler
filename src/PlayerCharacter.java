@@ -1188,6 +1188,11 @@ class GameGui {
         typeLabel.setForeground(Color.WHITE);
         currentRoomPanel.add(typeLabel);
 
+        // Update obstacle status based on visited state
+        if (currentRoom.isVisited()) {
+            currentRoom.hasObstacle = false;
+        }
+
         JLabel obstacleLabel = new JLabel("Has Obstacle: " + currentRoom.hasObstacle());
         obstacleLabel.setForeground(Color.WHITE);
         currentRoomPanel.add(obstacleLabel);
@@ -1285,9 +1290,15 @@ class GameGui {
                         JOptionPane.ERROR_MESSAGE);
             }
         }
-        if (currentRoom instanceof MonsterRoom && !inCombat && !currentRoom.isMonsterDefeated(((MonsterRoom) currentRoom).getMonster().getId())) {
-            activateCombat(((MonsterRoom) currentRoom).getMonster());
+        if (currentRoom == null) {
             return;
+        }
+        if (currentRoom instanceof MonsterRoom && !inCombat) {
+            Monster monster = ((MonsterRoom) currentRoom).getMonster();
+            if (monster != null && !currentRoom.isMonsterDefeated(monster.getId())) {
+                activateCombat(monster);
+                return;
+            }
         }
         if ("Treasure".equals(currentRoom.getType()) && !currentRoom.isVisited()) {
             try {
@@ -1590,87 +1601,87 @@ class GameGui {
             // Remove all components from the stats panel
             statsPanel.removeAll();
             
-            // Rebuild the stats panel content
-            statsPanel.add(createStatLine("Name: " + player.getCharacterData().getString("Name")));
-            statsPanel.add(createStatLine("Class: " + player.getCharacterData().getString("Class")));
-            statsPanel.add(createStatLine("Level: " + player.getCharacterData().getInt("Level")));
-            statsPanel.add(createStatLine("Exp: " + player.getCharacterData().getInt("Exp")));
-            statsPanel.add(createStatLine("MaxHP: " + player.getCharacterData().getInt("MaxHP")));
-            statsPanel.add(createStatLine("Current HP: " + player.getCharacterData().getInt("CurrentHP")));
-            statsPanel.add(createStatLine("Stamina: " + player.getCharacterData().getInt("CurrentStamina")));
-            statsPanel.add(createStatLine("Gold: " + player.getCharacterData().getInt("Gold")));
-            statsPanel.add(createStatLine("Strength: " + player.getCharacterData().getInt("Strength")));
-            statsPanel.add(createStatLine("Dexterity: " + player.getCharacterData().getInt("Dexterity")));
-            statsPanel.add(createStatLine("Toughness: " + player.getCharacterData().getInt("Toughness")));
-            statsPanel.add(createStatLine("Magic: " + player.getCharacterData().getInt("Magic")));
-            statsPanel.add(createStatLine("Dungeons Completed: " + player.getCharacterData().getInt("Dungeons Completed")));
-
-            // Add consumables section
-            statsPanel.add(Box.createVerticalStrut(20));
-            JLabel consumablesLabel = new JLabel("Use Items:");
-            consumablesLabel.setForeground(Color.WHITE);
-            statsPanel.add(consumablesLabel);
-
-            if (player.getCharacterData().has("Inventory")) {
-                JSONArray inventory = player.getCharacterData().getJSONArray("Inventory");
-
-                // Count health potions and stamina tonics
-                int healthPots = 0;
-                int staminaPots = 0;
+            // Rebuild the stats panel content with HTML formatting
+            JSONObject characterData = player.getCharacterData();
+            
+            // Player Basic Info
+            statsPanel.add(createStatLine("<html><b>Name:</b> " + characterData.getString("Name") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Class:</b> " + characterData.getString("Class") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Level:</b> " + characterData.getInt("Level") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Experience:</b> " + characterData.getInt("Exp") + "</html>"));
+            
+            // HP and Stamina
+            statsPanel.add(createStatLine("<html><b>HP:</b> " + characterData.getInt("CurrentHP") + "/" + characterData.getInt("MaxHP") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Stamina:</b> " + characterData.getInt("CurrentStamina") + "/" + characterData.getInt("MaxStamina") + "</html>"));
+            
+            // Stats
+            statsPanel.add(createStatLine("<html><b>Strength:</b> " + characterData.getInt("Strength") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Dexterity:</b> " + characterData.getInt("Dexterity") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Magic:</b> " + characterData.getInt("Magic") + "</html>"));
+            statsPanel.add(createStatLine("<html><b>Toughness:</b> " + characterData.getInt("Toughness") + "</html>"));
+            
+            // Gold
+            statsPanel.add(createStatLine("<html><b>Gold:</b> " + characterData.getInt("Gold") + "</html>"));
+            
+            // Add spacing
+            statsPanel.add(Box.createVerticalStrut(10));
+            
+            // Add Inventory section
+            statsPanel.add(createStatLine("<html><b>Inventory:</b></html>"));
+            if (characterData.has("Inventory")) {
+                JSONArray inventory = characterData.getJSONArray("Inventory");
+                Map<String, Integer> itemCounts = new HashMap<>();
+                
+                // Count items
                 for (int i = 0; i < inventory.length(); i++) {
                     String itemId = inventory.getString(i);
-                    if ("HLT".equals(itemId)) healthPots++;
-                    if ("STM".equals(itemId)) staminaPots++;
+                    itemCounts.put(itemId, itemCounts.getOrDefault(itemId, 0) + 1);
                 }
-
-                // Add health potion button if available
-                if (healthPots > 0) {
-                    JButton healthButton = new JButton("Health Potion (" + healthPots + ")");
-                    healthButton.addActionListener(e -> {
-                        try {
-                            // Remove one potion
-                            for (int i = 0; i < inventory.length(); i++) {
-                                if ("HLT".equals(inventory.getString(i))) {
-                                    inventory.remove(i);
-                                    break;
-                                }
-                            }
-
-                            // Restore 20% HP
-                            int maxHP = player.getCharacterData().getInt("MaxHP");
-                            int currentHP = player.getCharacterData().getInt("CurrentHP");
-                            int healAmount = (int)(maxHP * 0.2);
-                            player.getCharacterData().put("CurrentHP", Math.min(maxHP, currentHP + healAmount));
-
-                            // Refresh stats panel
-                            refreshStatsPanel();
-                            JOptionPane.showMessageDialog(gui, "Restored " + healAmount + " HP!");
-                        } catch (JSONException ex) {
-                            ex.printStackTrace();
-                        }
-                    });
-                    statsPanel.add(healthButton);
-                }
-
-                // Add stamina tonic button if available
-                if (staminaPots > 0) {
-                    JButton staminaTonicButton = new JButton("Use Stamina Tonic");
-                    staminaTonicButton.addActionListener(e -> {
-                        try {
-                            if (getCurrentStamina() < player.getMaxStamina()) {
-                                setCurrentStamina(player.getMaxStamina());
-                                updateCombatStats();
-                                combatLog.append("You restored your stamina to full!\n");
-                            } else {
-                                combatLog.append("Your stamina is already full!\n");
-                            }
-                        } catch (JSONException ex) {
-                            ex.printStackTrace();
-                        }
-                    });
-                    statsPanel.add(staminaTonicButton);
+                
+                // Display items with counts
+                for (Map.Entry<String, Integer> entry : itemCounts.entrySet()) {
+                    String itemId = entry.getKey();
+                    int count = entry.getValue();
+                    String itemName = getItemName(itemId);
+                    statsPanel.add(createStatLine("<html>&nbsp;&nbsp;" + itemName + " (" + count + ")</html>"));
                 }
             }
+            
+            // Add Skills section
+            statsPanel.add(Box.createVerticalStrut(10));
+            statsPanel.add(createStatLine("<html><b>Skills:</b></html>"));
+            if (characterData.has("Skills")) {
+                JSONArray skills = characterData.getJSONArray("Skills");
+                for (int i = 0; i < skills.length(); i++) {
+                    String skillId = skills.getString(i);
+                    String skillName = getSkillName(skillId);
+                    statsPanel.add(createStatLine("<html>&nbsp;&nbsp;" + skillName + "</html>"));
+                }
+            }
+            
+            // Add Stamina Tonic button if in combat
+            if (inCombat) {
+                statsPanel.add(Box.createVerticalStrut(10));
+                JButton staminaTonicButton = new JButton("Use Stamina Tonic");
+                staminaTonicButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+                staminaTonicButton.addActionListener(e -> {
+                    try {
+                        if (characterData.getInt("CurrentStamina") < characterData.getInt("MaxStamina")) {
+                            characterData.put("CurrentStamina", characterData.getInt("MaxStamina"));
+                            updateCombatStats();
+                            combatLog.append("You restored your stamina to full!\n");
+                        } else {
+                            combatLog.append("Your stamina is already full!\n");
+                        }
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
+                });
+                statsPanel.add(staminaTonicButton);
+            }
+            
+            // Add padding at the bottom
+            statsPanel.add(Box.createVerticalGlue());
             
             // Refresh the panel
             statsPanel.revalidate();
@@ -1903,6 +1914,8 @@ class Room {
 
     public void markVisited() {
         this.visited = true;
+        this.hasObstacle = false;
+        this.obstacleType = "None";
     }
 
     public void setPosition(int x, int y) {
@@ -1945,6 +1958,7 @@ class MonsterRoom extends Room {
     }
 
     private Monster loadRandomMonster(String theme) {
+        Random random = new Random();
         try {
             JSONObject monstersData = new JSONObject(new String(Files.readAllBytes(Paths.get("lib/Monsters.json"))));
             JSONArray monsters = monstersData.getJSONArray("monsters");
@@ -1962,14 +1976,62 @@ class MonsterRoom extends Room {
                 }
             }
             
-            if (!themedMonsters.isEmpty()) {
-                JSONObject selectedMonster = themedMonsters.get(r.nextInt(themedMonsters.size()));
-                return new Monster(selectedMonster);
+            if (themedMonsters.isEmpty()) {
+                System.out.println("Warning: No monsters found for theme: " + theme);
+                // If no themed monsters found, use any monster
+                for (int i = 0; i < monsters.length(); i++) {
+                    themedMonsters.add(monsters.getJSONObject(i));
+                }
+                System.out.println("Using fallback monster pool of size: " + themedMonsters.size());
             }
+            
+            if (!themedMonsters.isEmpty()) {
+                JSONObject selectedMonster = themedMonsters.get(random.nextInt(themedMonsters.size()));
+                Monster monster = new Monster(selectedMonster);
+                if (monster != null) {
+                    System.out.println("Selected monster: " + monster.getName() + " (ID: " + monster.getId() + ")");
+                    return monster;
+                }
+            }
+            
+            // If we get here, something went wrong
+            System.out.println("Error: Failed to load monster for theme: " + theme);
+            return createDefaultMonster();
+        } catch (Exception e) {
+            System.err.println("Error loading monster: " + e.getMessage());
+            e.printStackTrace();
+            return createDefaultMonster();
+        } finally {
+            // Cleanup if needed
+        }
+    }
+
+    private Monster createDefaultMonster() {
+        try {
+            JSONObject defaultMonster = new JSONObject();
+            defaultMonster.put("id", 999);
+            defaultMonster.put("name", "Default Monster");
+            defaultMonster.put("difficulty", "MED");
+            defaultMonster.put("themes", new JSONArray().put("default"));
+            
+            JSONObject stats = new JSONObject();
+            stats.put("STR", "MED");
+            stats.put("DEX", "MED");
+            stats.put("MAG", "MED");
+            stats.put("FOR", "MED");
+            stats.put("Stamina", "MED");
+            defaultMonster.put("stats", stats);
+            
+            JSONArray skills = new JSONArray();
+            skills.put("STG");
+            skills.put("RAZ");
+            defaultMonster.put("skills", skills);
+            
+            return new Monster(defaultMonster);
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     public Monster getMonster() {
@@ -2073,7 +2135,14 @@ class Dungeon {
     private String theme;
     private List<JSONObject> shopItems;
     private long dungeonSeed;
-    private static final String[] THEMES = {"forest", "cave", "castle", "ruins", "temple"};
+    private static final String[] THEMES = {
+        "Swampy", "Sewer", "Magical", "Volcanic", "Frozen Ice Cavern",
+        "Ancient Ruins", "Haunted Crypt", "Dark Forest", "Desert Tomb",
+        "Clockwork Fortress", "Corrupted Temple", "Crystal Cavern",
+        "Underwater Shrine", "Abandoned Mine", "Blood Catacombs",
+        "Shadow Realm", "Celestial Tower", "Fungal Hollow",
+        "Cursed Library", "Beast Lair"
+    };
     private Random r;
 
     public Dungeon(double seed) {
@@ -2117,26 +2186,33 @@ class Dungeon {
         // Create rooms.
         for (int i = 0; i < noRooms; i++) {
             Room newRoom;
-            // Room with id 1 is special.
+            // Room with id 1 is special - it's the starting room
             if (i == 1) {
-                newRoom = new Room(i, "startingRoom");
-            } else {
-                double chance = random.nextDouble();
-                boolean hasObstacle = random.nextDouble() < 0.25;
-                String obstacle = hasObstacle ? roomObstacles[random.nextInt(roomObstacles.length)] : null;
-                if (chance < 0.5) { // Monster room.
-                    newRoom = hasObstacle ? new MonsterRoom(i, obstacle, theme, random.nextLong()) : new MonsterRoom(i, theme, random.nextLong());
-                } else if (chance < 0.8) { // Treasure room.
-                    if (hasObstacle) {
-                        newRoom = new TreasureRoom(i, obstacle, dungeonSeed);
-                    } else {
-                        newRoom = new TreasureRoom(i, dungeonSeed);
-                    }
-                } else if (chance < 0.9) { // Upgrade room.
-                    newRoom = hasObstacle ? new UpgradeRoom(i, obstacle) : new UpgradeRoom(i);
-                } else { // Shop room.
-                    newRoom = hasObstacle ? new ShopRoom(i, obstacle) : new ShopRoom(i);
-                }
+                newRoom = new Room(1, "startingRoom");
+                rooms.add(newRoom);
+                continue;
+            }
+            
+            double chance = random.nextDouble();
+            boolean hasObstacle = random.nextDouble() < 0.25;
+            String obstacle = hasObstacle ? roomObstacles[random.nextInt(roomObstacles.length)] : null;
+            
+            if (chance < 0.4) { // Monster room (40%)
+                newRoom = hasObstacle ? 
+                    new MonsterRoom(i, obstacle, theme, random.nextLong()) : 
+                    new MonsterRoom(i, theme, random.nextLong());
+            } else if (chance < 0.6) { // Treasure room (20%)
+                newRoom = hasObstacle ? 
+                    new TreasureRoom(i, obstacle, dungeonSeed) : 
+                    new TreasureRoom(i, dungeonSeed);
+            } else if (chance < 0.8) { // Shop room (20%)
+                newRoom = hasObstacle ? 
+                    new ShopRoom(i, obstacle) : 
+                    new ShopRoom(i);
+            } else { // Upgrade room (20%)
+                newRoom = hasObstacle ? 
+                    new UpgradeRoom(i, obstacle) : 
+                    new UpgradeRoom(i);
             }
             rooms.add(newRoom);
         }
@@ -2640,16 +2716,15 @@ class Monster {
             this.fort = stats.getString("FOR");
             
             // Update stamina initialization to use the conversion method
-            String staminaStr = stats.optString("CurrentStamina", "MED");
+            String staminaStr = stats.getString("Stamina");
             this.maxStamina = convertStaminaTextToValue(staminaStr);
             this.currentStamina = this.maxStamina;
             
+            // Properly handle skills array
             this.skillIds = new ArrayList<>();
-            String skillsStr = json.optString("skills", "").trim();
-            if (!skillsStr.isEmpty()) {
-                for (String id : skillsStr.split(",")) {
-                    skillIds.add(id.trim());
-                }
+            JSONArray skillsArray = json.getJSONArray("skills");
+            for (int i = 0; i < skillsArray.length(); i++) {
+                skillIds.add(skillsArray.getString(i));
             }
         } catch (Exception e) {
             e.printStackTrace();

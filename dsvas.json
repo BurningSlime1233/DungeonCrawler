@@ -1,0 +1,23 @@
+{
+    "Gold": 700,
+    "Dexterity": 9,
+    "Base Seed": 0.2272444689978459,
+    "Magic": 6,
+    "HP": 100,
+    "Stamina": 100,
+    "Name": "dsvas",
+    "Toughness": 13,
+    "Skills": [],
+    "Class": "Warrior",
+    "Level": 1,
+    "Exp": 50,
+    "Strength": 16,
+    "Dungeons Completed": 66,
+    "Inventory": [
+        "STM",
+        "PSN",
+        "FLA",
+        "ARC",
+        "ARC"
+    ]
+}

@@ -3,9 +3,9 @@
     "Dexterity": 8,
     "CurrentHP": 120,
     "MaxHP": 120,
-    "Base Seed": 0.6253627300747036,
+    "Base Seed": 0.08530459394299117,
     "Magic": 5,
-    "Name": "John",
+    "Name": "test2",
     "Toughness": 12,
     "Skills": ["ATS"],
     "MaxStamina": 100,
@@ -14,7 +14,7 @@
     "CurrentStamina": 100,
     "Exp": 0,
     "Strength": 15,
-    "Dungeons Completed": 0,
+    "Dungeons Completed": 1,
     "Inventory": [
         "HLT",
         "STM"
