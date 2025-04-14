@@ -1,0 +1,24 @@
+{
+    "Gold": 300,
+    "Dexterity": 8,
+    "Base Seed": 0.8754684293222704,
+    "Magic": 5,
+    "HP": 100,
+    "Stamina": 100,
+    "Name": "John",
+    "Toughness": 12,
+    "Skills": ["ATS"],
+    "Class": "Warrior",
+    "Level": 1,
+    "Exp": 0,
+    "Strength": 15,
+    "Dungeons Completed": 1,
+    "Inventory": [
+        "HLT",
+        "STM",
+        "SMK",
+        "STM",
+        "FIR",
+        "STM"
+    ]
+}

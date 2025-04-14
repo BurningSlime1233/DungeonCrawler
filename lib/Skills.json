@@ -711,6 +711,54 @@
       "exploration": {
         "handles": "BRW"
       }
+    },
+    {
+      "id": "ATD",
+      "name": "Dexterity Attack",
+      "stat": "DEX",
+      "staminaCost": 0,
+      "condition": {},
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "LOW"
+      },
+      "classRestriction": "all",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "ATS",
+      "name": "Strength Attack",
+      "stat": "STR",
+      "staminaCost": 0,
+      "condition": {},
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "LOW"
+      },
+      "classRestriction": "all",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
+    },
+    {
+      "id": "ATM",
+      "name": "Magic Attack",
+      "stat": "MAG",
+      "staminaCost": 0,
+      "condition": {},
+      "scaling": {
+        "stamina": "LOW",
+        "damage": "LOW"
+      },
+      "classRestriction": "all",
+      "buff": {
+        "id": "",
+        "duration": 0
+      }
     }
   ]
 }
